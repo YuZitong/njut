@@ -11,34 +11,25 @@ C-TOMO（Computed Tomography，即计算机断层扫描）是一种医学影像�
 由于断层影像给诊断、观测所带来的便利，C-TOMO技术被广泛应用于医疗领域。
 各领域对于C-TOMO技术所产生的图像质量也有了越来越高的要求。小角度的C-TOMO技术有助于减少
 C-TOMO成像的成本，但在图像质量上不如全角度的C-TOMO，会出现边界模糊等问题，此外，由于
-X射线的扫描方向限制，在某些方向上的断层图像质量也较为不好。
-本论文通过改进SART的C-TOMO算法，在目标物体的先验知识已有的情况下，提取先验知识的特征，并将之
-融合到C-TOMO影像的计算中，
-从而提高小角度C-TOMO成像的质量。
-
-\keywords{关键词测试}
+X射线的扫描方向限制，在某些方向上的断层图像质量也较为不好。在C-TOMO计算时，我们还可以
+采用一些其他手段获得关于被测的物体的一些先验知识，如果能够将这些先验知识以某种形式应用到成像
+的过程中，并使之约束C-TOMO成像的过程，则可以使成像结果获得提升。本论文是针对特定的三维物体，
+以超声成像（US，UltraSound）的数据作为先验知识进行的小角度C-TOMO成像。对于成像算法，我采用改进
+的SART迭代算法，通过提取超声成像的梯度信息，并将之作为SART迭代优化过程中的约束条件，正则化为优化目标
+，从而明显改进了成像的质量，也把US图像的优势融合到了C-TOMO成像之中。
+\keywords{计算机断层扫描，小角度，先验知识，优化，SART算法，超声成像}
 \end{abstract}
 
 \begin{englishabstract}
- fsdjong
-
+ 
 \end{englishabstract}
 \NJUTtableofcontents
 \mainmatter
-\chapter{章节测试}
-行距测试
+\chapter{背景介绍}
 
-行距测试
-\cite{Al-Osh1987} \cite{Xu2007}
-sapdmgsadg
-\section{v}
-sdnds
-\section{c}
-sdongsga
-\chapter{l}
-\section{x}
 
-\bibliography{template}
+
+\bibliography{thesis}
 \end{document}
 
 
