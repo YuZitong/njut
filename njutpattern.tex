@@ -32,9 +32,9 @@
 
 \renewcommand{\floatpagefraction}{0.80}
 \newcommand\NJUTspace{\protect\CTEX@spaceChar\protect\CTEX@spaceChar}
-\def\CTEX@contentsname{\zihao{3}\songti\bfseries 目\NJUTspace 录}
-\def\CTEX@listfigurename{插\NJUTspace 图}
-\def\CTEX@listtablename{表\NJUTspace 格}
+\def\CTEX@contentsname{\zihao{3}\songti\bfseries 鐩甛NJUTspace 褰晑
+\def\CTEX@listfigurename{鎻抃NJUTspace 鍥緘
+\def\CTEX@listtablename{琛╘NJUTspace 鏍紏
 %footnote
 \fancypagestyle{plain}{%
     \fancyhf{}
@@ -50,7 +50,7 @@
 \def\NJUTunderline{\@ifnextchar[\NJUT@underline\CTEXunderline}
 
 %value
-\def\NJUT@value@title{论文题目}
+\def\NJUT@value@title{璁烘枃棰樼洰}
 \def\NJUT@value@author{}
 \def\NJUT@value@advisor{}
 \def\NJUT@value@major{}
@@ -64,15 +64,15 @@
 \def\NJUT@value@englishgrade{}
 
 %abstract
-\def\NJUT@abs@label@bar{南京大学本科生毕业论文（设计）中文摘要}
-\def\NJUT@abs@label@englishbar{南京大学本科生毕业论文（设计）英文摘要}
-\def\NJUT@abs@label@title{毕业论文题目:}
-\def\NJUT@abs@label@major{专业}
-\def\NJUT@abs@label@department{院系}
-\def\NJUT@abs@label@author{级本科生姓名：}
-\def\NJUT@abs@label@advisor{指导教师 （姓名、职称）:}
-\def\NJUT@abs@label@abstract{摘要:}
-\def\NJUT@abs@label@keywords{关键词}
+\def\NJUT@abs@label@bar{鍗椾含澶у鏈鐢熸瘯涓氳鏂囷紙璁捐锛変腑鏂囨憳瑕亇
+\def\NJUT@abs@label@englishbar{鍗椾含澶у鏈鐢熸瘯涓氳鏂囷紙璁捐锛夎嫳鏂囨憳瑕亇
+\def\NJUT@abs@label@title{姣曚笟璁烘枃棰樼洰:}
+\def\NJUT@abs@label@major{涓撲笟}
+\def\NJUT@abs@label@department{闄㈢郴}
+\def\NJUT@abs@label@author{绾ф湰绉戠敓濮撳悕锛殅
+\def\NJUT@abs@label@advisor{鎸囧鏁欏笀 锛堝鍚嶃�佽亴绉帮級:}
+\def\NJUT@abs@label@abstract{鎽樿:}
+\def\NJUT@abs@label@keywords{鍏抽敭璇峿
 \def\NJUT@abs@label@englishabstract{ABSTRACT:}
 \def\NJUT@abs@label@englishkeywords{KEYWORDS:~}
 
@@ -125,7 +125,7 @@
 
 \newcommand\NJUTtableofcontents{%
 \@mainmattertrue
-\addcontentsline{toc}{chapter}{目\NJUTspace 录}
+\addcontentsline{toc}{chapter}{鐩甛NJUTspace 褰晑
 \@mainmatterfalse
 \tableofcontents
 }
@@ -155,7 +155,7 @@
     \fi}
 %bib
 \renewcommand\bibfont{\zihao{-4}}
-\def\CTEX@references{\zihao{1}参考}
+\def\CTEX@references{\zihao{1}鍙傝�儅
 
 %%section
 \setcounter{secnumdepth}{4}
@@ -187,25 +187,25 @@
 {\newline}% Space after thm head: \newline = linebreak
 {}% Thm head spec
 
-?cfg?
+
 %%
 %% the theorems definitions
 %%
 \theoremstyle{plain}
-\newtheorem{algo}{算法~}[chapter]
-\newtheorem{thm}{定理~}[chapter]
-\newtheorem{lem}[thm]{引理~}
-\newtheorem{prop}[thm]{命题~}
-\newtheorem{cor}[thm]{推论~}
+\newtheorem{algo}{绠楁硶~}[chapter]
+\newtheorem{thm}{瀹氱悊~}[chapter]
+\newtheorem{lem}[thm]{寮曠悊~}
+\newtheorem{prop}[thm]{鍛介~}
+\newtheorem{cor}[thm]{鎺ㄨ~}
 \theoremstyle{definition}
-\newtheorem{defn}{定义~}[chapter]
-\newtheorem{conj}{猜想~}[chapter]
-\newtheorem{exmp}{例~}[chapter]
-\newtheorem{rem}{注~}
-\newtheorem{case}{情形~}
+\newtheorem{defn}{瀹氫箟~}[chapter]
+\newtheorem{conj}{鐚滄兂~}[chapter]
+\newtheorem{exmp}{渚媬}[chapter]
+\newtheorem{rem}{娉▇}
+\newtheorem{case}{鎯呭舰~}
 \theoremstyle{break}
-\newtheorem{bthm}[thm]{定理~}
-\newtheorem{blem}[thm]{引理~}
-\newtheorem{bprop}[thm]{命题~}
-\newtheorem{bcor}[thm]{推论~}
-\renewcommand{\proofname}{{\bf 证明}}
+\newtheorem{bthm}[thm]{瀹氱悊~}
+\newtheorem{blem}[thm]{寮曠悊~}
+\newtheorem{bprop}[thm]{鍛介~}
+\newtheorem{bcor}[thm]{鎺ㄨ~}
+\renewcommand{\proofname}{{\bf 璇佹槑}} 
