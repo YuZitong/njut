@@ -1,0 +1,176 @@
+\documentclass[cs4size,a4paper,fancyhdr,fntef]{ctexbook}
+\usepackage{amsmath,amsthm,amsfonts,amssymb,bm}
+\usepackage{hyperref}
+\usepackage[sort&compress,numbers]{natbib}
+\usepackage{graphicx}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{times}
+\usepackage{fancyvrb}
+\usepackage{titletoc}
+
+
+\geometry{top=3.5cm,bottom=3.5cm,left=3.2cm,right=3.2cm}
+\geometry{headheight=2.6cm,headsep=3mm,footskip=13mm}
+
+\parskip 0.5ex plus 0.25ex minus 0.25ex
+
+\def\cleardoublepage{\clearpage\if@twoside \ifodd\c@page\else
+ \thispagestyle{empty}%
+ \hbox{}\newpage\if@twocolumn\hbox{}\newpage\fi\fi\fi}
+
+\makeatletter
+\hypersetup{CJKbookmarks,%
+    bookmarksnumbered,%
+        colorlinks,%
+        linkcolor=black,%
+        citecolor=black,%
+        plainpages=false,%
+        pdfstartview=FitH}
+
+
+\renewcommand{\floatpagefraction}{0.80}
+\newcommand\NJUTspace{\protect\CTEX@spaceChar\protect\CTEX@spaceChar}
+\def\CTEX@contentsname{\zihao{3}\songti\bfseries 目\NJUTspace 录}
+\def\CTEX@listfigurename{插\NJUTspace 图}
+\def\CTEX@listtablename{表\NJUTspace 格}
+%footnote
+\fancypagestyle{plain}{%
+    \fancyhf{}
+    \fancyhead[C]{\if@mainmatter \small \leftmark\fi}
+    \fancyfoot[C]{\small ~\thepage~}
+    \renewcommand{\headrulewidth}{\if@mainmatter 0.7pt\else 0pt \fi}
+}
+\pagestyle{plain}
+
+%underline
+\def\NJUT@underline[#1]#2{%
+    \CTEXunderline{\hbox to #1{\hfill#2\hfill}}}
+\def\NJUTunderline{\@ifnextchar[\NJUT@underline\CTEXunderline}
+
+%value
+\def\NJUT@value@title{论文题目}
+\def\NJUT@value@author{}
+\def\NJUT@value@advisor{}
+\def\NJUT@value@major{}
+\def\NJUT@value@department{}
+\def\NJUT@value@grade{}
+\def\NJUT@value@englishtitle{}
+\def\NJUT@value@englishauthor{}
+\def\NJUT@value@englishadvisor{}
+\def\NJUT@value@englishmajor{}
+\def\NJUT@value@englishdepartment{}
+\def\NJUT@value@englishgrade{}
+
+%abstract
+\def\NJUT@abs@label@bar{南京大学本科生毕业论文（设计）中文摘要}
+\def\NJUT@abs@label@englishbar{南京大学本科生毕业论文（设计）英文摘要}
+\def\NJUT@abs@label@title{毕业论文题目:}
+\def\NJUT@abs@label@major{专业}
+\def\NJUT@abs@label@department{院系}
+\def\NJUT@abs@label@author{级本科生姓名：}
+\def\NJUT@abs@label@advisor{指导教师 （姓名、职称）:}
+\def\NJUT@abs@label@abstract{摘要:}
+\def\NJUT@abs@label@keywords{关键词}
+\def\NJUT@abs@label@englishabstract{ABSTRACT:}
+\def\NJUT@abs@label@englishkeywords{KEYWORDS:~}
+
+\newenvironment{abstract}{
+    \pdfbookmark[0]{\NJUT@abs@label@abstract}{abstract}
+    \begin{center}
+        {\bf\kaishu\zihao{-2} \uuline{\NJUT@abs@label@bar}}
+    \end{center}
+
+    {\kaishu\zihao{4}%
+        \noindent \NJUT@abs@label@title \NJUTunderline[315pt]{\NJUT@value@title}
+
+        \noindent \NJUTunderline[400pt]{}
+
+        \noindent \NJUTunderline[85pt]{\NJUT@value@department}\NJUT@abs@label@department%
+        \NJUTunderline[71pt]{\NJUT@value@major}\NJUT@abs@label@major%
+        \NJUTunderline[43pt]{\NJUT@value@grade}\NJUT@abs@label@author%
+        \NJUTunderline[60pt]{\NJUT@value@author}
+
+        \noindent \NJUT@abs@label@advisor \NJUTunderline[252pt]{\NJUT@value@advisor}
+
+        \NJUT@abs@label@abstract
+
+    }
+}{}
+\newcommand\keywords[1]{\vspace{2ex}\noindent{\kaishu \NJUT@abs@label@keywords} #1}
+
+\newenvironment{englishabstract}{%
+    \clearpage
+    \begin{center}
+        {\bf\kaishu\zihao{-2} \uuline{\NJUT@abs@label@englishbar}}
+    \end{center}
+    {\zihao{4}%
+    \begin{description}[font=\normalfont,leftmargin=4em]
+        \item[THESIS:]\NJUT@value@englishtitle
+        \item[DEPARTMENT:]\NJUT@value@englishdepartment
+        \item[SPECIALIZATION:]\NJUT@value@englishmajor
+        \item[UNDERGRADUATE:]\NJUT@value@englishgrade
+        \item[MENTOR:]\NJUT@value@englishadvisor
+        \item[ABSTRACT:]\hfil
+    \end{description}
+    }
+}{}
+\newcommand\englishkeywords[1]{%
+    \vspace{2ex}\noindent{\NJUT@abs@label@englishkeywords} #1}
+
+%%
+%contents
+%%
+
+\newcommand\NJUTtableofcontents{%
+\@mainmattertrue
+\addcontentsline{toc}{chapter}{目\NJUTspace 录}
+\@mainmatterfalse
+\tableofcontents
+}
+\addtocontents{toc}{\let\string\CTEX@spaceChar\relax}
+
+\titlecontents{chapter}[2em]
+              {\addvspace{0.6pc}\heiti\bfseries\zihao{4}}
+              {\thecontentslabel\enspace}
+              {}
+              {\titlerule*[0.5em]{$\cdot$}\contentspage}
+              [\addvspace{0.25pc}]
+
+\titlecontents{section}[4em]
+              {\addvspace{0.1pc}\songti\zihao{-4}}
+              {\thecontentslabel\enspace}
+              {}
+              {\titlerule*[0.5em]{$\cdot$}\contentspage}
+              [\addvspace{0.25pc}]
+
+\newcommand\Nchapter[1]{%
+    \if@mainmatter%
+        \@mainmatterfalse%
+        \chapter{#1}%
+        \@mainmatterture%
+    \else
+        \chapter{#1}%
+    \fi}
+%bib
+\renewcommand\bibfont{\zihao{-4}}
+\def\CTEX@references{\zihao{1}参考}
+
+%%section
+\setcounter{secnumdepth}{4}
+\def\CTEX@chapter@nameformat{\bfseries\heiti\zihao{4}}
+\def\CTEX@chapter@titleformat{\bfseries\heiti\zihao{4}}
+\def\CTEX@chapter@beforeskip{15\p@}
+\def\CTEX@chapter@afterskip{12\p@}
+\def\CTEX@section@format{\bfseries\heiti\zihao{4}\centering}
+\def\CTEX@section@beforeskip{-3ex \@plus -1ex \@minus -.2ex}
+\def\CTEX@section@afterskip{1.0ex \@plus .2ex}
+\def\CTEX@subsection@format{\bfseries\heiti\zihao{-4}}
+\def\CTEX@subsection@indent{2\ccwd}
+\def\CTEX@subsection@beforeskip{-2.5ex \@plus -1ex \@minus -.2ex}
+\def\CTEX@subsection@afterskip{1.0ex \@plus .2ex}
+\def\CTEX@subsubsection@format{\bfseries\heiti\zihao{-4}}
+\def\CTEX@subsubsection@indent{2\ccwd}
+\def\CTEX@subsubsection@beforeskip{-2ex \@plus -1ex \@minus -.2ex}
+\def\CTEX@subsubsection@afterskip{1.0ex \@plus .2ex}
