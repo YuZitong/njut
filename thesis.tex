@@ -7,10 +7,16 @@
 
 \def \A {\bm{ A}}
 \def \B {\bm{ B}}
+\def \C {\bm{C}}
 \def \W {\bm{ W}}
 \def \V {\bm{ V}}
-\def \g {\bm{ g}}
+\def \bv {\bm{ v}}
+\def \bh {\bm{ h}}
 \def \bb {\bm{b}}
+\def \bP {\bm{P}}
+\def \bQ {\bm{Q}}
+\def \bL {\bm{L}}
+\newcommand\upp[1]{^{(#1)}}
 
 
 \def \bxi {\boldsymbol{\xi}}
@@ -71,31 +77,69 @@ X射线的扫描方向限制，在某些方向上的断层图像质量也较为�
 Initialize $\x^{(0)} \leftarrow \bm{0}$,$t\leftarrow \bm{0}$
 \REPEAT
 \STATE
-$D_{tomo}(x^{(k)}) \leftarrow \omega \V{-1}\A^T\W(\bb-\A\x^{(t)})$ \\
-$D_{ush}(x^{(k)}) \leftarrow \lambda_h\B^{T}_h(\g_h-\B_h\x^{(t)})$ \\
-$ D_{usv}(x^{(k)}) \leftarrow \lambda_v\B^{T}_v(\g_v-\B_v\x^{(t)})$
+$\bL(\x^{(t)}) \leftarrow  \V{-1}\A^T\W(\bb-\A\x^{(t)})$ \\
+$\bP(\x^{(t)}) \leftarrow \B^{T}(\bh-\B\x^{(t)})$ \\    %水平
+$\bQ(\x^{(t)}) \leftarrow \C^{T}(\bv-\C\x^{(t)})$         %垂直
 \STATE
-$\x^{(k+1)}\leftarrow D_{tomo}(x^{(k)}) + D_{ush}(x^{(k)}) + D_{usv}(x^{(k)})    $
+$\x^{(t+1)}\leftarrow \omega\bL(x^{()k}) + \lambda\bP(x^{(t)}) + \xi\bQ(x^{(t)})    $
 \UNTIL{convergence}
 \end{algorithmic}
 \end{algo}
 
 在算法\ref{mysart}中，$\x$代表的是所重建的数据，为一维向量，是将立体的物体模型以确定方向的坐标延伸而成。
-$D_{tomo}(x^{(k)})$,分别是tomo约束的迭代增量，而$D_{ush}(x^{(k)})$和$ D_{usv}(x^{(k)})$是超声数据的信息
-的迭代增量。矩阵$\A$是在Tomography中X射线的投影矩阵，$\V$是对角矩阵，它的对角元素
-是$V_{j,j}=A_{+,j}$,$\W$也是对角矩阵，其元素为$V_{j,j}=A_{i,+}$,$\B_h,\B_v$是提取超声信息所用的矩阵，
-$\g_h,\g_v$则是超声信息中所提取出来信息，也是一维向量。
+$\bL(x^{(k)})$,分别是tomo约束的迭代增量，而$\bP(x^{(k)})$和$ \bQ(x^{(k)})$是超声数据的信息
+的迭代增量\footnote{在算法中可以增加多个先验知识，在本文中我们使用了两个信息，分别为超声数据的不同方向所提取的，
+具体见章节\ref{sec:mysart}，后同。}。矩阵$\A$是在Tomography中X射线的投影矩阵，$\V$是对角矩阵，它的对角元素
+是$V_{j,j}=A_{+,j}$,$\W$也是对角矩阵，其元素为$V_{j,j}=A_{i,+}$,$\B,\C$是提取超声信息所用的矩阵，
+$\bh,\bv$则是超声信息中所提取出来信息，也是一维向量。
 $\omega,\lambda_h,\lambda_v$
 分别是三者的迭代步进参数。关于该算法的细节在接下来的章节中进一步描述。
-\section{使用梯度信息的基于SART的优化算法}
-在前所述的研究工作中，我们发现有三个问题：
+\section{使用梯度信息的基于SART的优化算法}\label{sec:mysart}
+在前所述的研究工作中，我们发现:
 \begin{enumerate}
     \item 由于X射线tomography是小角度重建的原因，本质上信息是缺失的。在我们的模型中所直接看到的情况就是肿块
     在垂直方向上的大小变化不清晰，并没有清楚的变化边缘，而是呈现逐渐模糊掉的形式。这点是超声数据可以弥补的，
     它在肿块边界的变化上有明显的优势。
-    \item 
+    \item 超声重建的探测方向与x射线tomography的探测方向并不相同。x射线tomography的探测方向是在被测物体上方往下
+    放射，而放射管在一个小角度里转动。相比之下超声重建的探测方向是被测物体的边上以垂直于tomography的方向发射的，
+    由此可以知道两者在物体不同部分的信息也并不相同。特别是在经过了两者数据的配准之后，在沿超声探测方向上实际上已经
+    有了插值数据，而这些数据实际上如果完全应用于重建是不合理的。
+    \item 物体内不同材料对X射线和超声的吸收特性是不一样的，甚至可能会呈现相反的趋势。
+    \item 超声重建后的数据存在着不小的噪声。
 \end{enumerate}
+在上述讨论中，我们可以发现，直接应用超声数据到重建中是不合理的，因为超声数据有许多冗余的信息会误导到tomo重建。同时，
+我们可以发现，我们所需要的是超声重建数据的边缘信息。超声数据对肿块清晰的边缘可以弥补tomography重建中肿块边缘信息的缺失，
+同时即使材料对X射线和超声的吸收特性不同，不同材料之间的边缘信息也是一致的。因此，如果能有效利用边缘信息，我们便可以把
+超声信息的优势加入到数据重建中。
 
+为了利用边缘信息，将使用图像的梯度作为要提取的信息。在图~\ref{fig:model}中，我们看到超声是沿着$y$轴进行探测，由此超声重建数据
+在$x,z$方向上的梯度具有较多的有用信息。特别是在$z$方向上的梯度，包含有肿块在$z$方向上的变化信息，这可以对tomogarphy重建的肿块在
+这个方向上边缘变化不明显的问题做一个比较好的补偿。
+
+在算法~\ref{mysart}中，有$\bh,\bv$实际上就是超声提取的梯度信息，这个是直接对超声重建的数据取梯度并经过一定的处理完成的一维向量
+\footnote{直接得到的梯度图像包含有大量的噪声，还不能直接使用，需要经过处理，见章节\ref{sec:gradprocess}}。
+而$\B,\C $则是对图像取梯度的矩阵算子。
+
+\section{算法展开}
+将算法~\ref{mysart}根据前述章节内容展开，我们将得到每一次迭代的过程如下:
+\begin{align}
+ L_k(x_i) &= \cfrac{1}{A_{+,k}}\sum^N_{i=1}\cfrac{A_{i,k}}{A_{i,+}}\bigl(b_i-\bar{b_i}(x\upp{t})\bigr) \label{eq:L} \\
+P_k(x_i^{(t)}) &= \begin{cases}
+                            -(2x_k\upp{t} - x_{k+mn}\upp{t} - x_{k-mn}\upp{t} - h_k + h_{k-mn}) & mn \le k \le N-mn \\
+                            -(x_k\upp{t} - x_{k+mn}\upp{t} - h_k) &  k\le mn \\
+                            -(x_{k-mn}\upp{t} - x_{k}\upp{t} - h_{k-mn}) &  N-mn \le k \le N
+                        \end{cases}  \label{eq:P} \\
+Q_k(x_i^{(t)}) &= \begin{cases}
+                            -(2x_k\upp{t} - x_{k+n}\upp{t} - x_{k-n}\upp{t} - v_k + v_{k-mn}) & k \notin [ imn-n+1, imn+n]
+                            \\ &i = 0,1,2\hdots\\
+                            -(x_k\upp{t} - x_{k+n}\upp{t} - v_k) & k \in \left[imn+1,imn+n\right] \\ &i = 0,1,2\hdots\\
+                            -(x_{k-n}\upp{t} - x_{k}\upp{t} - v_{k-n}) &  k \in [imn-n+1,imn] \\ &i= 1,2,3 \hdots
+                        \end{cases} \label{eq:Q} \\
+x_k^{(t+1)}&= \omega L_k(x^{(t)}) + \lambda P_k(x^{(t)}) + \xi Q_k(x^{(t)}) \label{eq:all}
+\end{align}
+上述就是基于SART的优化算法采用两个方向的梯度信息的结果。方程\eqref{eq:L},\eqref{eq:P},\eqref{eq:Q}分别给出了三项的展开结果。其中方程
+\eqref{eq:P},\eqref{eq:Q}是已经将梯度运算矩阵$\B,\C$代入的结果。可以看到，该算法的展开结果与SART算法相比，是在SART的基础上增加了两项
+超声梯度信息项，而正是
 \bibliography{thesis}
 \end{document}
 
