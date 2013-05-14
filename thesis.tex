@@ -1,4 +1,23 @@
 \input{njutpattern}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+
+
+\def \x {\bm{ x}}
+
+\def \A {\bm{ A}}
+\def \B {\bm{ B}}
+\def \W {\bm{ W}}
+\def \V {\bm{ V}}
+\def \g {\bm{ g}}
+\def \bb {\bm{b}}
+
+
+\def \bxi {\boldsymbol{\xi}}
+\def \btau {\boldsymbol{\tau}}
+\def \balpha {\boldsymbol{\alpha}}
+\def \1 {{\bf 1}}
+
 
 \begin{document}
 \bibliographystyle{NJUthesis}
@@ -22,12 +41,12 @@ X射线的扫描方向限制，在某些方向上的断层图像质量也较为�
 \end{abstract}
 
 \begin{englishabstract}
- 
+
 \end{englishabstract}
 \NJUTtableofcontents
 \mainmatter
-\chapter{背景介绍}
-\section{计算机断层照相术C-TOMO}
+\chapter{绪论}
+\section{背景介绍}
 众所周知，在X-射线被发现后，人们就将之应用于医学上的人体透视检测。然后，直接使用X射线，会直接减少一个维度
 信息，对于很多细微部分的检测会出现很大问题。于是有不少研究者开始探寻从X射线的投影中生成横向断层切片图像的
 方法。Radon在1917的一篇文献中提出了断层摄影（tomography）的数学工作（\cite{radon1986}，为后来的断层影像生成
@@ -40,7 +59,42 @@ X射线的扫描方向限制，在某些方向上的断层图像质量也较为�
 随后，在这个方法的基础上人们
 改进并不断提出了新的方法，如带滤波的反向投影算法（Filtered Backprojection, FBP）\cite{kak1979computerized}。
 
+\chapter{基于SART的优化算法}
+\section{算法概述}
+在SART算法的基础上，改进了一种优化算法，该算法可以把超声成像的信息融合到重建的过程中，从而在重建中可以
+引导重建图像的生成，使得重建以一种合理的方式融合X射线tomography与超声成像的优势，由此来弥补小角度成像所造成
+的信息缺失。下面是本文所提出的优化算法的基本框架。
+\begin{algo}\label{mysart}
+基于SART的优化算法
+\begin{algorithmic}[1]
+\STATE
+Initialize $\x^{(0)} \leftarrow \bm{0}$,$t\leftarrow \bm{0}$
+\REPEAT
+\STATE
+$D_{tomo}(x^{(k)}) \leftarrow \omega \V{-1}\A^T\W(\bb-\A\x^{(t)})$ \\
+$D_{ush}(x^{(k)}) \leftarrow \lambda_h\B^{T}_h(\g_h-\B_h\x^{(t)})$ \\
+$ D_{usv}(x^{(k)}) \leftarrow \lambda_v\B^{T}_v(\g_v-\B_v\x^{(t)})$
+\STATE
+$\x^{(k+1)}\leftarrow D_{tomo}(x^{(k)}) + D_{ush}(x^{(k)}) + D_{usv}(x^{(k)})    $
+\UNTIL{convergence}
+\end{algorithmic}
+\end{algo}
 
+在算法\ref{mysart}中，$\x$代表的是所重建的数据，为一维向量，是将立体的物体模型以确定方向的坐标延伸而成。
+$D_{tomo}(x^{(k)})$,分别是tomo约束的迭代增量，而$D_{ush}(x^{(k)})$和$ D_{usv}(x^{(k)})$是超声数据的信息
+的迭代增量。矩阵$\A$是在Tomography中X射线的投影矩阵，$\V$是对角矩阵，它的对角元素
+是$V_{j,j}=A_{+,j}$,$\W$也是对角矩阵，其元素为$V_{j,j}=A_{i,+}$,$\B_h,\B_v$是提取超声信息所用的矩阵，
+$\g_h,\g_v$则是超声信息中所提取出来信息，也是一维向量。
+$\omega,\lambda_h,\lambda_v$
+分别是三者的迭代步进参数。关于该算法的细节在接下来的章节中进一步描述。
+\section{使用梯度信息的基于SART的优化算法}
+在前所述的研究工作中，我们发现有三个问题：
+\begin{enumerate}
+    \item 由于X射线tomography是小角度重建的原因，本质上信息是缺失的。在我们的模型中所直接看到的情况就是肿块
+    在垂直方向上的大小变化不清晰，并没有清楚的变化边缘，而是呈现逐渐模糊掉的形式。这点是超声数据可以弥补的，
+    它在肿块边界的变化上有明显的优势。
+    \item 
+\end{enumerate}
 
 \bibliography{thesis}
 \end{document}
