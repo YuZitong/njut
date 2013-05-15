@@ -18,6 +18,7 @@
 \def \bL {\bm{L}}
 \newcommand\upp[1]{^{(#1)}}
 \newcommand\norm[1]{\lVert#1\rVert}
+\newcommand\inner[1]{\langle #1\ \rangle}
 \DeclareMathOperator*{\argmin}{\arg\!\min}
 
 \def \bxi {\boldsymbol{\xi}}
@@ -82,7 +83,7 @@ $\bL(\x^{(t)}) \leftarrow  \V{-1}\A^T\W(\bb-\A\x^{(t)})$ \\
 $\bP(\x^{(t)}) \leftarrow \B^{T}(\bh-\B\x^{(t)})$ \\    %水平
 $\bQ(\x^{(t)}) \leftarrow \C^{T}(\bv-\C\x^{(t)})$         %垂直
 \STATE
-$\x^{(t+1)}\leftarrow \omega\bL(x^{()k}) + \lambda\bP(x^{(t)}) + \xi\bQ(x^{(t)})    $
+$\x^{(t+1)}\leftarrow \omega\bL(\x^{(t)}) + \lambda\bP(\x^{(t)}) + \xi\bQ(\x^{(t)})    $
 \UNTIL{convergence}
 \end{algorithmic}
 \end{algo}
@@ -136,7 +137,7 @@ Q_k(x_i^{(t)}) &= \begin{cases}
                             -(x_k\upp{t} - x_{k+n}\upp{t} - v_k) & k \in \left[imn+1,imn+n\right] \\ &i = 0,1,2\hdots\\
                             -(x_{k-n}\upp{t} - x_{k}\upp{t} - v_{k-n}) &  k \in [imn-n+1,imn] \\ &i= 1,2,3 \hdots
                         \end{cases} \label{eq:Q} \\
-x_k^{(t+1)}&= x_k\upp{k} + \omega L_k(x^{(t)}) + \lambda P_k(x^{(t)}) + \xi Q_k(x^{(t)}) \label{eq:all}
+x_k^{(t+1)}&= x_k\upp{t} + \omega L_k(x^{(t)}) + \lambda P_k(x^{(t)}) + \xi Q_k(x^{(t)}) \label{eq:all}
 \end{align}
 其中$m,n$分别是被测立方物体底面的两边长度，$m$为$x$方向上的边长，$n$为$y$方向上的边长。$N$为物体所有的像素点数。
 
@@ -151,10 +152,10 @@ x_k^{(t+1)}&= x_k\upp{k} + \omega L_k(x^{(t)}) + \lambda P_k(x^{(t)}) + \xi Q_k(
 与两个梯度约束
 \begin{align*}
 \B\x &= \bh \\
-\C\x &= \bv 
+\C\x &= \bv
 \end{align*}
 中取得全局最优化的结果。
-\section{基于SART的优化算法的推导}
+\section{优化目标的建立}\label{sec:optobj}
 在章节\ref{sec:algodetail}中，提到了被重建的物体需要满足tomograph投影约束与两个梯度约束，在这三个约束中间取到最优化。事实上，基于约束
 的优化也正是SART算法的本质所在。我们知道，在tomography的投影探测中，X射线穿过物体，并被沿途的被测物体物质进行一定量的吸收，最后发射
 到传感器上，传感器检测到射线的吸收量。由此，这个吸收量其实就是被物体该射线所穿过的每个像素沿着探测射线进行累积（积分）的量。由于我们
@@ -168,20 +169,135 @@ x_k^{(t+1)}&= x_k\upp{k} + \omega L_k(x^{(t)}) + \lambda P_k(x^{(t)}) + \xi Q_k(
 此外，在章节\ref{sec:mysart}中提到，我们要将超声数据的梯度信息融合到重建中。实际上，就是要使得重建的物体的固定方向的梯度上要与超声数据
 对应方向的梯度相接近。考虑到SART算法实际上是解决这样一个优化问题:
 \begin{equation}
-\x = \argmin_{x\in\mathbb{R}}\norm{\A\x-\bb}^2 \label{eq:sartopt}
+\x = \argmin_{\x\in R^N}\W\norm{\A\x-\bb}^2 \label{eq:sartopt}
 \end{equation}
-方程\eqref{eq:sartopt}实际上就是在寻找一个值$\x$，它能使得$\A\x$与得到的投影数据 $\bb$的相差最小。在本文中，将它的范数定为损失函数。
+方程\eqref{eq:sartopt}的优化其实是一个带权的最小平方误差优化，权$\W$ 是因为SART的形式需要加上。这个优化，实际上就是在寻找一个值$\x$，它能使得$\A\x$与得到的投影数据 $\bb$的相差最小。在本文中，将它的范数定为损失函数。
 注意范数函数都为凸函数，因此这是一个凸优化。
 将梯度的约束加上，我们就得到
 \begin{equation}
-\x = \argmin_{x\in\mathbb{R}}\norm{\A\x-\bb}^2 +\norm{\B\x-\bh}^2+\norm{\C\x-\bv}^2 \notag
+\x = \argmin_{\x\in R^N}\W\norm{\A\x-\bb}^2 +\norm{\B\x-\bh}^2+\norm{\C\x-\bv}^2 \notag
 \end{equation}
 实际上，这样并不是最合理的，因为这样可能会使得最后的数据偏向tomo的约束方向或者偏向梯度约束方向。注意我们是要使得重建的数据在一定程度上
 被引向梯度约束，因此，可以在上面的优化目标中增加参数$c,d$用来控制各个约束对数据的影响程度，这些参数可以在实验中确定一个最佳值，因此
 ，方程变为
 \begin{equation}
-\x = \argmin_{x\in\mathbb{R}}\norm{\A\x-\bb}^2 +c\norm{\B\x-\bh}^2+d\norm{\C\x-\bv}^2 
+\x = \argmin_{\x\in R^N}\W\norm{\A\x-\bb}^2 +c\norm{\B\x-\bh}^2+d\norm{\C\x-\bv}^2 \qquad c>0,d>0 \label{eq:mysartopt}
 \end{equation}
+注意在方程\eqref{eq:mysartopt}中，它由于是多个范数的非负权重和，因此它还是一个凸函数\cite{boyd2004convex}，这仍然是一个凸优化。而为了解决
+这个优化问题，我们将使用梯度下降算法\cite{nesterov2003}。
+\section{梯度下降算法}
+我们知道，负梯度$-f'(x)$是函数下降最快的方向。因此，如果要求目标最小值的话，
+可以将被优化目标往它的负梯度方向每次步进一些，就能到达一个局部最小值，
+梯度下降算法框架如下：
+\begin{algo}
+对于一个可微的优化目标 $f(x)$
+\begin{algorithmic}[1]
+\STATE
+选择一个$x_{0}\in R^n$
+\STATE
+迭代\\
+$x_{k+1}=x_{k}-h_kf'(x_{k}),\qquad k=0,1,\hdots$
+\end{algorithmic}
+\end{algo}
+其中$h_k$被称为step size,步进大小。它的值可以挑选合适的，比如
+\begin{align*}
+h_k &= h>0,\quad h\text{为常数}\\
+h_k &= \cfrac{h}{\sqrt{k+1}}
+\end{align*}
+在\cite{nesterov2003}中给出了梯度下降算法的性能分析。定义
+$C^{k,p}_L(Q)$是一族$k$阶可微函数，其第$p$阶导数在$Q$上满足Lipschitz
+连续，也就是
+\begin{equation*}
+\norm{f\upp{p}(x)-f\upp{p}(y)}\le L\norm{x-y}\qquad \text{对于所有的} x,y\in Q
+\end{equation*}
+考虑这个优化问题
+\begin{equation}\label{eq:gdopt}
+\min_{x\in R^n}f(x)
+\end{equation}
+其中$f(x)\in C^{1,1}_L(R^n)$，我们假设$f(x)$在$R^n$上有下界，且步进参数
+为常数。由$y=x-hf'(x)$，从上述假设里首先我们可以得出
+\begin{equation}
+\begin{split} \label{eq:une}
+f(y) &\le f(x) + \inner{f'(x),y-x}+\frac{L}{2}\norm{y-x}^2  \\
+     &= f(x)-h\norm{f'(x)}^2+\frac{h^2}{2}L\norm{f'(x)}^2 \\
+     &= f(x)-h(1-\frac{h}{2}L)\norm{f'(x)}^2
+\end{split}
+\end{equation}
+因此，为了估计最佳的下降大小，我们需要解这个一维问题：
+\begin{equation*}
+\Delta (h)=-h(1-\frac{h}{2}L)\rightarrow\min_h
+\end{equation*}
+取这个函数的导数，我们可以得到$\Delta '(h)=hL-1=0$，因此，解
+是$h^\star=\frac{1}{L}$，同时这也是$\Delta(h)$的最小值。
+
+因此，前式变为
+\begin{equation*}
+f(y)\le f(x)-\cfrac{1}{2L}\norm{f'(x)}^2
+\end{equation*}
+当考虑之前的迭代策略$x_{k+1}=x_k-h_kf'(x_k)$，$h_k=h$代入，有：
+\begin{equation*}
+f(x_k)-f(x_{k+1})\ge h(1-\cfrac{1}{2}Lh)\norm{f'(x_k)}^2
+\end{equation*}
+现在考虑一般情况下的情况。由上面的集中类型我们可以得到
+\begin{equation}
+f(x_k)-f(x_{k+1})\ge \cfrac{\omega}{L}\norm{f'(x_k)}^2
+\end{equation}
+其中$\omega$是一个正常数。
+
+将上面的式子以$k=0,\hdots,N$累加起来，可以得到
+\begin{equation}
+\cfrac{\omega}{L}\sum^N_{k=0}\norm{f'(x_k)}^2\le f(x_0)-f(x_N)
+\le f(x_0)-f^\star
+\end{equation}
+其中$f^\star$是对问题\eqref{eq:gdopt}的最优化值。因此，
+由上式我们可以得出
+\begin{equation*}
+\norm{f'(x_k)}\rightarrow 0 \qquad k\rightarrow \infty
+\end{equation*}
+也就是说，被优化函数的梯度$f'(x)$可以在一定次数的迭代之后趋向于$0$。定义收敛序列
+\begin{equation*}
+g^\star_N=\min_{0\le k\le N}g_k
+\end{equation*}
+其中$g_k=\norm{f'(x_k)}^2$。于是，可以得到下述不等式：
+\begin{equation}
+g^\star_N \le \cfrac{1}{\sqrt{N+1}}[\cfrac{1}{\omega}L(f(x_0)-f^\star)]^{1/2}
+\end{equation}
+上市右边项提示了$g^\star_N$与$N$的关系。
+
+在\cite{nesterov2003}中还对梯度下降算法的收敛性进行了分析。有定理
+\begin{thm}\label{thm:graddecent}
+令函数$f(x)$满足如下的假设：
+\begin{enumerate}
+\item{$f\in C^{2,2}_M(R^n)$}
+\item{存在函数$f$的局部最小值，且在这个点上它的Hessian是正定的}
+\item{存在一些边界$0<l\le L<\infty$,对于在点$x^\star$的Hessian来说，有
+\begin{equation*}
+lI_n\le f''(x^\star)\le LI_n
+\end{equation*}}
+\end{enumerate}
+且令$x_0$足够接近局部最小值：
+\begin{equation*}
+r_0=\norm{x_0-x^\star}<\bar{r}=\cfrac{2l}{M}
+\end{equation*}
+于是使用合适的步进值的梯度下降方法可以以如下的速率收敛：
+\begin{equation*}
+\norm{x_k-x^\star}\le \cfrac{\bar{r}r_0}{\bar{r}-r_0}(1-\cfrac{l}{L+l})^k
+\end{equation*}
+\end{thm}
+也就是说，梯度下降算法是线性收敛的。在章节\ref{eq:optobj}中提到，我们的目标函数为多个范数非负权相加的形式。由于范数
+函数本身是凸的，所以这个非负权和的形式也是凸的。我们知道，凸函数有一个特点，是有唯一全局最小点。因此，采用梯度下降
+算法所收敛到的局部最小点就是全局最小点。同时，我们也在定理\ref{thm:graddecent}中看到梯度下降算法具有优良的收敛性，
+因此使用梯度下降算法解这个优化问题是合理的。另外，在后文中我们会看到SART算法本身的形式也是能利用梯度下降算法来解释，
+这也更进一步增加了使用梯度下降算法的合理性。
+\section{基于SART的优化算法推导}
+接下来将采用梯度下降算法来推导出算法\ref{mysart}。重新将优化目标\ref{eq:mysartopt}写在这里
+\begin{equation}
+min_{\x\in\R^N}\W\norm{\A\x-\bb}^2 +c\norm{\B\x-\bh}^2+d\norm{\C\x-\bv}^2 \qquad c>0,d>0 
+\end{equation}
+我们令
+\begin{equation*}
+\bF(\x
+\end{equation*}
 \bibliography{thesis}
 \end{document}
 
