@@ -17,7 +17,8 @@
 \def \bQ {\bm{Q}}
 \def \bL {\bm{L}}
 \newcommand\upp[1]{^{(#1)}}
-
+\newcommand\norm[1]{\lVert#1\rVert}
+\DeclareMathOperator*{\argmin}{\arg\!\min}
 
 \def \bxi {\boldsymbol{\xi}}
 \def \btau {\boldsymbol{\tau}}
@@ -120,7 +121,7 @@ $\omega,\lambda_h,\lambda_v$
 \footnote{直接得到的梯度图像包含有大量的噪声，还不能直接使用，需要经过处理，见章节\ref{sec:gradprocess}}。
 而$\B,\C $则是对图像取梯度的矩阵算子。
 
-\section{算法展开}
+\section{算法展开}\label{sec:algodetail}
 将算法~\ref{mysart}根据前述章节内容展开，我们将得到每一次迭代的过程如下:
 \begin{align}
  L_k(x_i) &= \cfrac{1}{A_{+,k}}\sum^N_{i=1}\cfrac{A_{i,k}}{A_{i,+}}\bigl(b_i-\bar{b_i}(x\upp{t})\bigr) \label{eq:L} \\
@@ -135,11 +136,52 @@ Q_k(x_i^{(t)}) &= \begin{cases}
                             -(x_k\upp{t} - x_{k+n}\upp{t} - v_k) & k \in \left[imn+1,imn+n\right] \\ &i = 0,1,2\hdots\\
                             -(x_{k-n}\upp{t} - x_{k}\upp{t} - v_{k-n}) &  k \in [imn-n+1,imn] \\ &i= 1,2,3 \hdots
                         \end{cases} \label{eq:Q} \\
-x_k^{(t+1)}&= \omega L_k(x^{(t)}) + \lambda P_k(x^{(t)}) + \xi Q_k(x^{(t)}) \label{eq:all}
+x_k^{(t+1)}&= x_k\upp{k} + \omega L_k(x^{(t)}) + \lambda P_k(x^{(t)}) + \xi Q_k(x^{(t)}) \label{eq:all}
 \end{align}
-上述就是基于SART的优化算法采用两个方向的梯度信息的结果。方程\eqref{eq:L},\eqref{eq:P},\eqref{eq:Q}分别给出了三项的展开结果。其中方程
-\eqref{eq:P},\eqref{eq:Q}是已经将梯度运算矩阵$\B,\C$代入的结果。可以看到，该算法的展开结果与SART算法相比，是在SART的基础上增加了两项
-超声梯度信息项，而正是
+其中$m,n$分别是被测立方物体底面的两边长度，$m$为$x$方向上的边长，$n$为$y$方向上的边长。$N$为物体所有的像素点数。
+
+上述就是基于SART的优化算法采用两个方向的梯度信息的结果。方程\eqref{eq:L}, \eqref{eq:P}, \eqref{eq:Q}分别给出了三项的展开结果，其中方程
+\eqref{eq:P}, \eqref{eq:Q}是已经将梯度运算矩阵$\B,\C$代入的结果。而方程
+\eqref{eq:all}将三项的迭代项通过步进参数调整后加到$\x$上进行迭代。可以看到，该算法的展开结果与SART算法相比，
+是在SART的基础上增加了两项超声梯度信息项，这两项超声梯度信息项将超声的梯度信息融合到了重建中。在后面的部分中我们可以看到，这种
+算法可以使得被重建的物体将在满足tomograph投影约束
+\begin{equation*}
+\A\x = \bb
+\end{equation*}
+与两个梯度约束
+\begin{align*}
+\B\x &= \bh \\
+\C\x &= \bv 
+\end{align*}
+中取得全局最优化的结果。
+\section{基于SART的优化算法的推导}
+在章节\ref{sec:algodetail}中，提到了被重建的物体需要满足tomograph投影约束与两个梯度约束，在这三个约束中间取到最优化。事实上，基于约束
+的优化也正是SART算法的本质所在。我们知道，在tomography的投影探测中，X射线穿过物体，并被沿途的被测物体物质进行一定量的吸收，最后发射
+到传感器上，传感器检测到射线的吸收量。由此，这个吸收量其实就是被物体该射线所穿过的每个像素沿着探测射线进行累积（积分）的量。由于我们
+需要采用数值方法计算，物体的像素被我们离散，所以这个吸收量实际上就是射线途径的物体像素的累积和。对于每一条射线，我们都
+可以用一个相应的矩阵来代表它的路径。它实际上就是与物体等大小的一个矩阵。我们将物体的像素写成一位列向量$\x$的形式后，该矩阵实际上就变成
+了与之等长的一个行向量。将所有探测光束所代表的横向量进行排列以后，实际上就得到了我们的投影约束矩阵$\A$。而相应的得到的投影数据也
+写成一个一维列向量的形式$\bb$。因此，我们得到了方程
+\begin{equation}
+\A\x = \bb \label{eq:tomocon}
+\end{equation}
+此外，在章节\ref{sec:mysart}中提到，我们要将超声数据的梯度信息融合到重建中。实际上，就是要使得重建的物体的固定方向的梯度上要与超声数据
+对应方向的梯度相接近。考虑到SART算法实际上是解决这样一个优化问题:
+\begin{equation}
+\x = \argmin_{x\in\mathbb{R}}\norm{\A\x-\bb}^2 \label{eq:sartopt}
+\end{equation}
+方程\eqref{eq:sartopt}实际上就是在寻找一个值$\x$，它能使得$\A\x$与得到的投影数据 $\bb$的相差最小。在本文中，将它的范数定为损失函数。
+注意范数函数都为凸函数，因此这是一个凸优化。
+将梯度的约束加上，我们就得到
+\begin{equation}
+\x = \argmin_{x\in\mathbb{R}}\norm{\A\x-\bb}^2 +\norm{\B\x-\bh}^2+\norm{\C\x-\bv}^2 \notag
+\end{equation}
+实际上，这样并不是最合理的，因为这样可能会使得最后的数据偏向tomo的约束方向或者偏向梯度约束方向。注意我们是要使得重建的数据在一定程度上
+被引向梯度约束，因此，可以在上面的优化目标中增加参数$c,d$用来控制各个约束对数据的影响程度，这些参数可以在实验中确定一个最佳值，因此
+，方程变为
+\begin{equation}
+\x = \argmin_{x\in\mathbb{R}}\norm{\A\x-\bb}^2 +c\norm{\B\x-\bh}^2+d\norm{\C\x-\bv}^2 
+\end{equation}
 \bibliography{thesis}
 \end{document}
 
