@@ -10,6 +10,7 @@
 \usepackage{fancyvrb}
 \usepackage{titletoc}
 
+\makeatletter
 
 \geometry{top=3.5cm,bottom=3.5cm,left=3.2cm,right=3.2cm}
 \geometry{headheight=2.6cm,headsep=3mm,footskip=13mm}
@@ -20,7 +21,7 @@
  \thispagestyle{empty}%
  \hbox{}\newpage\if@twocolumn\hbox{}\newpage\fi\fi\fi}
 
-\makeatletter
+
 \hypersetup{CJKbookmarks,%
     bookmarksnumbered,%
         colorlinks,%
@@ -209,3 +210,5 @@
 \newtheorem{bprop}[thm]{命题~}
 \newtheorem{bcor}[thm]{推论~}
 \renewcommand{\proofname}{{\bf 证明}} 
+
+\makeatother

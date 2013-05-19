@@ -1,7 +1,7 @@
 \input{njutpattern}
 \usepackage{algorithm}
 \usepackage{algorithmic}
-
+\usepackage{float}
 
 \def \x {\bm{ x}}
 
@@ -16,6 +16,10 @@
 \def \bP {\bm{P}}
 \def \bQ {\bm{Q}}
 \def \bL {\bm{L}}
+\def \bF {\bm{F}}
+\def \bg {\bm{g}}
+\def \bI {\bm{I}}
+
 \newcommand\upp[1]{^{(#1)}}
 \newcommand\norm[1]{\lVert#1\rVert}
 \newcommand\inner[1]{\langle #1\ \rangle}
@@ -25,6 +29,7 @@
 \def \btau {\boldsymbol{\tau}}
 \def \balpha {\boldsymbol{\alpha}}
 \def \1 {{\bf 1}}
+\def \0 {{\bm 0}}
 
 
 \begin{document}
@@ -79,7 +84,7 @@ X射线的扫描方向限制，在某些方向上的断层图像质量也较为�
 Initialize $\x^{(0)} \leftarrow \bm{0}$,$t\leftarrow \bm{0}$
 \REPEAT
 \STATE
-$\bL(\x^{(t)}) \leftarrow  \V{-1}\A^T\W(\bb-\A\x^{(t)})$ \\
+$\bL(\x^{(t)}) \leftarrow  \V^{-1}\A^T\W(\bb-\A\x^{(t)})$ \\
 $\bP(\x^{(t)}) \leftarrow \B^{T}(\bh-\B\x^{(t)})$ \\    %水平
 $\bQ(\x^{(t)}) \leftarrow \C^{T}(\bv-\C\x^{(t)})$         %垂直
 \STATE
@@ -292,12 +297,225 @@ r_0=\norm{x_0-x^\star}<\bar{r}=\cfrac{2l}{M}
 \section{基于SART的优化算法推导}
 接下来将采用梯度下降算法来推导出算法\ref{mysart}。重新将优化目标\ref{eq:mysartopt}写在这里
 \begin{equation}
-min_{\x\in\R^N}\W\norm{\A\x-\bb}^2 +c\norm{\B\x-\bh}^2+d\norm{\C\x-\bv}^2 \qquad c>0,d>0 
+\min_{\x\in R^N}\W\norm{\A\x-\bb}^2 +c\norm{\B\x-\bh}^2+d\norm{\C\x-\bv}^2 \qquad c>0,d>0
 \end{equation}
 我们令
 \begin{equation*}
-\bF(\x
+\bF(\x) = \W\norm{\A\x-\bb}^2 +c\norm{\B\x-\bh}^2+d\norm{\C\x-\bv}^2
 \end{equation*}
+它是一个连续可微的函数，所以我们求它的梯度
+\begin{equation*}
+\nabla \bF(\x) = 2(\A^T\W(\A\x-\bb)+c\B^T(\B\x-\bh)+d\C^T(\C\x-\bv))
+\end{equation*}
+使用梯度下降，我们有
+\begin{equation}\label{eq:gradout}
+\begin{split}
+\x\upp{t+1}&=\x\upp{t}-\cfrac{\omega}{2}\V^{-1}\nabla F(\x\upp{t})\\
+&=\x\upp{t} + \omega\V^{-1}\A^T\W(\bb-\A\x\upp{k})
+           + c\omega\V^{-1}\B^T(\bh-\B\x)
+           + d\omega\V^{-1}\C^T(\bv-\C\x)
+\end{split}
+\end{equation}\label{eq:gradfinal}
+令$\lambda = c\omega\V^{-1},\xi = d\omega\V^{-1}$
+于是方程\eqref{eq:gradout}变为
+\begin{equation}\label{eq:gradout2}
+\x\upp{t+1}= \x\upp{t} + \omega\V^{-1}\A^T\W(\bb-\A\x\upp{k})
+           + \lambda \B^T(\bh-\B\x\upp{k})
+           + \xi \C^T(\bv-\C\x\upp{k})
+\end{equation}
+可以发现，方程\eqref{eq:gradfinal}其实就是算法\ref{mysart}
+的迭代过程。在其中，为了能得到SART基础项的正确形式，设置步进常数为$\tfrac{\omega}{2}\V^{-1}$，
+这样可以使得正常的SART可以不被破坏\footnote{SART的设置本身具有良好的收敛性，这点我们在后文中会提到}，而
+在上面的最后一步中，我们将$\omega\V^{-1}$和梯度相自带的
+常数$c,d$（可以是矩阵）一起合并成一个简单的常数项$\lambda ,\xi$，这个步骤实际上就是一定程度
+上把梯度项的迭代和tomogaphy的投影项的迭代过程分离开来。如果常数项选择不当的话，轻的后果是可能使得其中一些项的作用超过其它项，而
+严重的话则从定理
+\ref{thm:graddecent}中，我们可以知道，会使得
+迭代过程不再收敛。可以发现，我们的优化目标中含有矩阵$\A$，它是一个复杂的大矩阵（tomography投影矩阵）,
+此外，还带有权矩阵$\W$，这与梯度项所带的梯度计算矩阵$\B,\C$的数量级往往并不一样，所以优化目标将变的较为复杂，
+直接采用解析的方法计算合理的步进常数项是难以实现的，因此，将在实验中确定合理的参数项。
+
+下面将推导出该算法的展开具体展开形式。首先要给出计算梯度的计算。先分析$\x$的排列。我们知道，它是将三维的物体数据伸展成一维的。物体的模型
+示意见图\ref{fig:model1}。
+\begin{figure}[ht]
+\center
+\includegraphics[width=0.8\textwidth]{figure/model1.jpg}
+\caption{探测物体模型}\label{fig:modle1}
+\end{figure}
+在图中，探测物体在$x$方向的边长为$m$，在$y$方向的边长为$n$。注意图中沿$y$轴的三根箭头，三维物体的像素索引顺序是依照此箭头进行的。也就是说，索引顺序的第一级顺序是$y$轴正方向顺序，第二级顺序是$x$
+轴正方向顺序，第三级顺序是$z$轴正方向顺序。对于一个在物体中的坐标标号为$I_{xyz}$的的像素点而言，它在$\x$中的坐标索引$x_i$计算方式如下：
+\begin{equation}\label{eq:indexconvert}
+x_i = I_{xyz}\qquad \text{当} i = mnz+nx+y
+\end{equation}
+从取梯度的角度考虑，我们不选择超声探测平行的方向梯度信息，这是因为探测本身的积分特性，会使得在这个方向上相对被模糊，也就是
+梯度信息不如与超声探测方向相垂直的方向。由于超声影像的探测方向是沿着$y$轴正方向照射，我们选择在$x$,$z$两个方向的梯度信息。
+
+首先处理沿着$z$轴的梯度方向。要计算沿着该方向的梯度。实际上就是对于所计算出来的梯度$grad$，这样的：
+\begin{equation}\label{eq:grad_z1}
+grad_{xyz} = I_{xyz}-I_{xy(z+1)} 
+\end{equation}
+方程\eqref{eq:grad_z1}没有涉及到最后一个平面的问题。一般来说，梯度的边缘并不是十分重要，因此，为了方便未来的计算，将边缘处补$0$。
+由式\eqref{eq:indexconvert}可以得到：
+\begin{equation}\label{eq:grad_z2}
+g_i = \begin{cases}
+        x_{i} - x_{i+mn} & i \le N-mn \\
+        0   & i \in [N-mn+1,N]
+        \end{cases}
+\end{equation}
+对于式\eqref{eq:grad_z2}，可以写成矩阵形式：
+\begin{equation*}
+\bg = \C \x
+\end{equation*}
+其中矩阵$\C$如下：
+\begin{equation*}
+\C = \begin{pmatrix}
+1 & 0 & 0 & 0 & \cdots &-1 & 0 &0 &0 &\cdots \\
+0 & 1 & 0 & 0 &\cdots &0 & -1 &0 &0 &\cdots \\
+\hdotsfor[3]{3}& 1& \cdots &\hdotsfor[3]{3}&-1&\cdots \\
+0 & 0 & 0 & \hdotsfor[3]{5}&0&0 \\
+\hdotsfor[3]{10}\\
+\hdotsfor[3]{10}\\
+0 & 0 & \ddots & 0 & \cdots & 0 & 0 & \ddots & 0& \cdots 
+\end{pmatrix}
+\end{equation*}
+或者可以写成
+\begin{equation*}
+\C = \begin{pmatrix}
+\bI &  -\bI & \0 & \0 & \0 \cdots \\
+\0 & \bI &  -\bI & \0 & \0 \cdots \\
+\0 & \0  & \ddots & \ddots & \0 & \cdots \\
+\hdotsfor[3]{7} \\
+\0 & \0 & \0 &\cdots & \0 & \0 &\0 \cdots
+\end{pmatrix}
+\end{equation*}
+其中，$\bI$是一个大小为$mn * mn$的单位矩阵，而$bm 0$ 则是大小为$mn * mn$的零矩阵。
+于是我们可以得到关于$\C$ 矩阵的归纳式：
+\begin{equation}\label{eq:C}
+C_{ij} = \begin{cases}
+1 & i = j,\quad i\le N-mn \\
+-1 & i = j- mn,\quad i\le N- mn \\
+0 & \text{其它}
+\end{cases}
+\end{equation}
+
+接下来是$\B$矩阵的推导。对于$\B$，其求梯度方向是沿着$x$轴方向。同样的，为了未来计算方便，在边缘处补$0$。
+这个边缘也就是物体沿着$x$轴的最外侧。类似于$\C$，可以得到:
+\begin{equation*}
+\B = \begin{pmatrix}
+1 & 0 & 0 & 0 & \cdots &-1 & 0 &0 &0 &\cdots \\
+0 & 1 & 0 & 0 &\cdots &0 & -1 &0 &0 &\cdots \\
+0 & 0 & \ddots & 0 & \cdots & 0 & 0 & \ddots & 0& \cdots \\
+\hdotsfor[3]{3}& 1& \cdots &\hdotsfor[3]{3}&-1&\cdots \\
+0 & 0 & 0 & \hdotsfor[3]{5}&0&0 \\
+\hdotsfor[3]{10}\\
+\hdotsfor[3]{10}
+\end{pmatrix}
+\end{equation*}
+为了方便描述，也可以写成矩阵形式：
+\begin{equation*}
+\B = \begin{pmatrix}
+\tilde{\bI} &  -\tilde{\bI} & \0 & \0 & \0 \cdots \\
+\0 & \tilde{\bI} &  -\tilde{\bI} & \0 & \0 \cdots \\
+\0 & \0  & \ddots & \ddots & \0 & \cdots \\
+\hdotsfor[3]{7} \\
+\0 & \0 & \0 &\cdots & \0 & \0 &\0 \cdots
+\end{pmatrix}
+\end{equation*}
+其中，$\tilde{\bI}$是一个大小为$n * n$的矩阵，描述如下：
+\begin{equation*}
+\tilde{\bI} = \begin{pmatrix}
+1 & 0 & 0 & \cdots &\cdots & \cdots\\
+0 & 1 & 0 & \cdots &\cdots & \cdots\\
+ & &\ddots & \\
+& & & \cdots& 1 & 0 \\
+0 & \cdots & \cdots & \cdots & \cdots & 0 
+\end{pmatrix}
+\end{equation*}
+而$\bm 0$ 则是大小为$n * n$的零矩阵。于是$\B$可以写成归纳形式如下：
+\begin{equation}\label{eq:B}
+B_{ij} = \begin{cases}
+1 & i=j, \quad i \notin [kmn-n+1,kmn] \\
+-1 & i = j-n \quad i \notin [kmn-n+1,kmn] \\
+0 & \text{其它}
+\end{cases}
+\end{equation}
+
+现在，矩阵$\B$和$\C$ 都已经得到了，我们需要对式子\eqref{eq:gradout2}作进一步展开，并得到可以计算的最终结果。
+
+考虑式子
+\begin{equation*}
+\B^T(\bh-\B\x)
+\end{equation*}
+先将内部展开，根据$\B$ 的定义，可以得到：
+\begin{equation*}
+\begin{split}
+(\bh-\B\x)_i &= -(\sum_{j=1}^{N}B_{ij}x_j - h_i)\\
+             & = \begin{cases}
+             -(x_i -x_{i+n} -h_i)  & i \notin [kmn-n+1,kmn]\\
+             0  & \text{其它} \\
+             \end{cases} \\
+             & = T_i
+\end{split}
+\end{equation*}
+再展开的式子的外层，有
+\begin{equation*}
+(\B^T(\bh-\B\x))_j = \sum_{j=1}^{N}\B_{ij}T_i \\
+\end{equation*}
+考虑到$\B$ 定义，即式子\eqref{eq:B}，上式可以进一步展开为
+\begin{equation*}
+\sum_{j=1}^{N}\B_{ij}T_i =  \begin{cases}
+T_j -T_{j-n} & j\notin [kmn-n+1,kmn+n]\\
+T_j  & j \in [kmn+1,kmn+n] \\
+-T_{j-n} & j \in [kmn-n+1,kmn]
+\end{cases}
+\end{equation*}
+将上述式子进一步展开，就得到
+\begin{equation} \label{eq:Bout}
+(\B^T(\bh-\B\x))_j = \begin{cases}
+-(2x_j -x_{j+n} -x_{j-n} -h_j + h_{j-n}) & j\notin [kmn-n+1,kmn+n]\\
+-(x_j-x_{j+n}-h_j) & j \in [kmn+1,kmn+n] \\
+(x_{j-n}-x_j-h_{j-n} & j \in [kmn-n+1,kmn]
+\end{cases}
+\end{equation}
+
+接下来考虑式子
+\begin{equation*}
+\C^T(\bh-\C\x)
+\end{equation*}
+先将内部展开，根据$\C $的定义，可以得到：
+\begin{equation*}
+\begin{split}
+(\bv-\C\x)_i &= -(\sum_{j=1}^{N}C_{ij}x_j - v_i)\\
+             & = \begin{cases}
+             -(x_i -x_{i+mn} -v_i)  & i \notin [N-mn+1,kmn]\\
+             0  & \text{其它} \\
+             \end{cases} \\
+             & = Y_i
+\end{split}
+\end{equation*}
+再展开的式子的外层，有
+\begin{equation*}
+(\C^T(\bv-\C\x))_j = \sum_{j=1}^{N}\C_{ij}Y_i \\
+\end{equation*}
+考虑到$\C$ 定义，即式子\eqref{eq:C}，上式可以进一步展开为
+\begin{equation*}
+\sum_{j=1}^{N}\C_{ij}Y_i =  \begin{cases}
+Y_j -Y_{j-n} & j\in [mn,N-mn]\\
+Y_j  & j \in [1,mn] \\
+-Y_{j-mn} & j \in [N-mn,N]
+\end{cases}
+\end{equation*}
+将上述式子进一步展开，就得到
+\begin{equation} \label{eq:Cout}
+\C^T(\bh-\C\x))_j = \begin{cases}
+-(2x_j -x_{j+mn} -x_{j-mn} -v_j + v_{j-n}) & j\in [mn,N-mn]\\
+-(x_j-x_{j+mn}-v_j) & j \in [1,mn] \\
+(x_{j-mn}-x_j-v_{j-mn} & j \in [N-mn,N]
+\end{cases}
+\end{equation}
+
+对于式子\eqref{eq:gradout2}中的第一项，我们可以直接展开得到：
+
 \bibliography{thesis}
 \end{document}
 
