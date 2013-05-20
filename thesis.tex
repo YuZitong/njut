@@ -1,7 +1,11 @@
 \input{njutpattern}
 \usepackage{algorithm}
 \usepackage{algorithmic}
+\usepackage{perpage}
 \usepackage{float}
+
+
+\MakePerPage{footnote}
 
 \def \x {\bm{ x}}
 
@@ -19,6 +23,7 @@
 \def \bF {\bm{F}}
 \def \bg {\bm{g}}
 \def \bI {\bm{I}}
+\def \R {\bm{R}}
 
 \newcommand\upp[1]{^{(#1)}}
 \newcommand\norm[1]{\lVert#1\rVert}
@@ -150,7 +155,7 @@ x_k^{(t+1)}&= x_k\upp{t} + \omega L_k(x^{(t)}) + \lambda P_k(x^{(t)}) + \xi Q_k(
 \eqref{eq:P}, \eqref{eq:Q}是已经将梯度运算矩阵$\B,\C$代入的结果。而方程
 \eqref{eq:all}将三项的迭代项通过步进参数调整后加到$\x$上进行迭代。可以看到，该算法的展开结果与SART算法相比，
 是在SART的基础上增加了两项超声梯度信息项，这两项超声梯度信息项将超声的梯度信息融合到了重建中。在后面的部分中我们可以看到，这种
-算法可以使得被重建的物体将在满足tomograph投影约束
+算法可以使得被重建的物体将在满足tomograph投影约束。
 \begin{equation*}
 \A\x = \bb
 \end{equation*}
@@ -190,7 +195,7 @@ x_k^{(t+1)}&= x_k\upp{t} + \omega L_k(x^{(t)}) + \lambda P_k(x^{(t)}) + \xi Q_k(
 \end{equation}
 注意在方程\eqref{eq:mysartopt}中，它由于是多个范数的非负权重和，因此它还是一个凸函数\cite{boyd2004convex}，这仍然是一个凸优化。而为了解决
 这个优化问题，我们将使用梯度下降算法\cite{nesterov2003}。
-\section{梯度下降算法}
+\section{梯度下降算法}\label{sec:graddescent}
 我们知道，负梯度$-f'(x)$是函数下降最快的方向。因此，如果要求目标最小值的话，
 可以将被优化目标往它的负梯度方向每次步进一些，就能到达一个局部最小值，
 梯度下降算法框架如下：
@@ -352,7 +357,7 @@ x_i = I_{xyz}\qquad \text{当} i = mnz+nx+y
 
 首先处理沿着$z$轴的梯度方向。要计算沿着该方向的梯度。实际上就是对于所计算出来的梯度$grad$，这样的：
 \begin{equation}\label{eq:grad_z1}
-grad_{xyz} = I_{xyz}-I_{xy(z+1)} 
+grad_{xyz} = I_{xyz}-I_{xy(z+1)}
 \end{equation}
 方程\eqref{eq:grad_z1}没有涉及到最后一个平面的问题。一般来说，梯度的边缘并不是十分重要，因此，为了方便未来的计算，将边缘处补$0$。
 由式\eqref{eq:indexconvert}可以得到：
@@ -375,7 +380,7 @@ g_i = \begin{cases}
 0 & 0 & 0 & \hdotsfor[3]{5}&0&0 \\
 \hdotsfor[3]{10}\\
 \hdotsfor[3]{10}\\
-0 & 0 & \ddots & 0 & \cdots & 0 & 0 & \ddots & 0& \cdots 
+0 & 0 & \ddots & 0 & \cdots & 0 & 0 & \ddots & 0& \cdots
 \end{pmatrix}
 \end{equation*}
 或者可以写成
@@ -428,7 +433,7 @@ C_{ij} = \begin{cases}
 0 & 1 & 0 & \cdots &\cdots & \cdots\\
  & &\ddots & \\
 & & & \cdots& 1 & 0 \\
-0 & \cdots & \cdots & \cdots & \cdots & 0 
+0 & \cdots & \cdots & \cdots & \cdots & 0
 \end{pmatrix}
 \end{equation*}
 而$\bm 0$ 则是大小为$n * n$的零矩阵。于是$\B$可以写成归纳形式如下：
@@ -515,6 +520,69 @@ Y_j  & j \in [1,mn] \\
 \end{equation}
 
 对于式子\eqref{eq:gradout2}中的第一项，我们可以直接展开得到：
+\begin{equation}\label{eq:Aout}
+(\omega\V^{-1}\A^T\W(\bb-\A\x))_j = \cfrac{\omega}{A_{+,j}}
+\sum_{i=1}^M\cfrac{A_{i,j}}{A_{i,+}}(b_i-\bar{b}_i(x))
+\end{equation}
+在上式中
+\begin{align*}
+A_{i,+}=\sum_{j=1}^N{A_{i,j}} \\
+A_{+,j}=\sum_{i=1}^M{A_{i,j}} \\
+\bar{b}_i(x)=(\A\x)_i
+\end{align*}
+其中$N,M$分别表示矩阵$A$的横、纵长度。矩阵$A$是投影矩阵，将在具体问题中获得，
+在章节\ref{sec:obtainA}中会详细介绍。
+
+于是，将式\eqref{eq:Aout}式\eqref{eq:Bout}以及式\eqref{eq:Cout}代入到式\eqref{eq:gradout2}中，
+就可以得到我们算法的完整展开形式了。
+\section{基于SART算法的收敛性}
+在章节\ref{sec:graddescent}中，已经提到了梯度下降算法的收敛性在一定的条件下（该条件一般都满足）是线性时间的。
+而SART算法本身就是一种梯度下降算法，加在其前面的是相应的矩阵项$\V^{-1}$，其实是相当于在最小平方误差中的每一个维度
+分别添加了一个相应的参数。而对于SART迭代项的收敛性，在论文\cite{jiang2003convergence}中对其做了详细的总结与证明。
+
+\cite{jiang2003convergence}中中先证明了SART算法解的存在性。
+令$N(A)$是矩阵$\A$的零空间，则根据正交分解理论有:
+\begin{equation*}
+\R^N=N(A)\bigoplus N(A)^\perp
+\end{equation*}
+其中$N(A)^\perp$表示$N(A)$的正交补子空间，令$R(\A^T)$表示矩阵$\A^T$的值域，
+所以，可以知道$N(A)^\perp=R(\A^T)$
+
+令
+\begin{equation*}
+L(x)=\sum_{i=1}^M\cfrac{1}{A_{i,+}}(b_i-\bar{b}_i(x))^2=\norm{\bb-\A\x}^2_W
+\end{equation*}
+其中$\norm{\bb-\A\x}^2_W = \W\norm{\bb-\A\x}^2$，它的梯度表示为：
+\begin{equation*}
+\nabla L(\x)=-2\A^T\W(\bb-\A\x)
+\end{equation*}
+而所有$L$的最小化点要满足
+\begin{equation}\label{eq:normaleq}
+\A^T\W\A\x=\A^T\W\bb
+\end{equation}
+因为$\inner{\A^T\W\A\x,\x}=\norm{\A\x}^2_W$，因此可以得到$N(A^TWA)=N(A)$。
+且因为$\A^T\W\bb\in R(\A^T) = N(A)^\perp$，\ref{eq:normaleq}存在解。
+
+令S为\eqref{eq:normaleq}的解集。
+则由于$L(x)$是在$\x$上的凸函数，\eqref{eq:normaleq}
+的解也是$L$的最小化点，反之亦然。所以$S$也是$L$在$\R^N$上的最小化点集。
+
+接下\cite{jiang2003convergence}中证明了SART算法的收敛性问题。其中有：
+\begin{equation*}
+L(x\upp({x}))-L(x\upp{k})\le -\alpha\norm{x\upp{k+1}-x\upp{k}}^2_V
+\end{equation*}
+其中$\alpha = 2/\omega -1 > 0$。又有下述推论：
+\begin{enumerate}
+\item{$\{L(x\upp{k})\}^\infty_{k=0}$有界。}
+\item{$L(x\upp{k+1})\le L(x\upp{k})$}
+\item{\begin{equation*}
+L(x\upp{k+1})+\alpha\sum^k_{j=0}\norm{x\upp{j+1}-x\upp{j}}^2_V\le L(x_0)
+\end{equation*}}
+\item{$\sum^\infty_{j=0}\norm{x\upp{j+1}-x\upp{j}}^2_V$收敛}
+\item{\begin{equation*}
+\norm{x\upp{k+1}-x\upp{k}}\rightarrow 0，\text{对于}k\rightarrow \infty
+\end{equation*}}
+\end{enumerate}
 
 \bibliography{thesis}
 \end{document}
