@@ -25,6 +25,7 @@
 \def \bg {\bm{g}}
 \def \bI {\bm{I}}
 \def \R {\bm{R}}
+\def \ba {\bm{a}}
 \def \bxi {\boldsymbol{\xi}}
 \def \btau {\boldsymbol{\tau}}
 \def \balpha {\boldsymbol{\alpha}}
@@ -141,7 +142,7 @@ X射线的扫描方向限制，在某些方向上的断层图像质量也较为�
 较高，边缘清晰且伪影较轻，恰恰可以补充CT有限角度重建的不足。在本文要探究的模型中，将直接使用已经重建完成
 的超声数据。
 
-\section{解析算法}
+\section{解析类算法}
 正如章节\ref{sec:current}所描述，CT重建主要基于两类方法，第一类便是解析类算法。这类算法主要基于
 傅里叶切片定理（The Fourier Slice Theorem）\cite{bracewell1986fourier},是目前CT成像方面的主流算法。
 \subsection{雷登变换（Radon Transform）}
@@ -367,15 +368,56 @@ a_{ij}=\sum^{M_j}_{m=1}d_{ijm}\Delta s
 可以在计算量和精确度之间取得一个良好的效果。
 
 \subsection{ART算法}
+按照上述的坐标描述，ART算法的迭代式子可以表示为\cite{gordon1974tutorial}
+\cite{gordon1970algebraic}\cite{herman1973art}:
+\begin{equation}
+\bg\upp{k+1}=\bg\upp{k}+\ba_j\cfrac{p_j-\ba^T_j\bg\upp{k}}{\ba^T_j\ba_j}
+\end{equation}
+其中$\ba_j$为投影矩阵中的第$j$列。可以看到这是一种迭代计算，
+对每一条光束，
+都会更新一次$\bg$，且$\bg$的初始值都设置为$0$。当所有光线全部被计算
+过一次之后，就完成了一次计算循环。
 \subsection{SART算法}
-\section{算法总结}
-\section{小结}
+SART算法在ART算法的基础上，对其迭代公式进行了一定的改进。其算法如下\cite{andersen1984simultaneous}:
+\begin{equation}
+g_i\upp{k+1}=g_i\upp{k}+\cfrac{\sum_j\bigl[a_{ij}\cfrac{p_j-\ba^T_j\bg\upp{k}}{\sum^N_{i=1}a_{ij}}\bigr]}{\sum_ja_{ij}}
+\end{equation}
+在ART算法中，分别对每条光束进行一次迭代和更新，而在
+SART算法之中，则一次迭代要考虑所有的光束。可以看到，对于第$i$个像素，
+其迭代项被以$j$进行迭代，其分子$\sum^N_{i=1}$代表了第$j$条光束的长度。
+而ART算法中的分母也被改成了$\sum^N_{i=1}a_{ij}$，这个项在
+同步重建过程中用于平衡图像数值。
+\section{算法选择}
+对于存在的两大类算法，其各有优势。代数算法相比之于解析类算法，
+存在的缺点是计算量很大。然而，它在数据不足时的重建是可行的，
+比解析类算法拥有更少的噪声。
 
+考虑到本文需要解决的问题是通过先验知识提高小角度CT成像的质量，
+代数类算法就成为自然而然的选择。对于本文问题，它有如下优势：
+\begin{enumerate}
+\item 小角度CT本身就是一种数据缺失的图像重建
+，而使用代数重建算法可以在这种情况下较好重建数据
+\item 在代数重建的过程中，由于其是
+迭代项使用的形式，更容易加入先验知识优化重建过程
+\end{enumerate}
+\section{小结}
+在本章节中，先给出了需要解决的问题模型。其中包括被探测的物体的模型，
+探测系统的模型，以及先验知识的情况。
+
+鉴于需要解决的问题是一个CT重建问题，自然需要讨论可行的解决方案。所以接下来
+先讨论了比较流行的解析类算法，即基于傅里叶切片理论的几种经典算法。
+
+接下来，又讨论了相对应用较少的代数类算法。列出了这类算法的数学系统，以及两个
+经典算法ART和SART的基本形式。
+
+在最后的分析讨论中，本文认为，采用代数重建类算法对于本文需要解决的
+问题是最可行的，因此，将基于代数类算法来解决本文的问题。在后文中，
+将详细讨论本文所提出的重建算法。
 
 
 \chapter{基于SART的优化算法}
 \section{算法概述}
-在SART算法的基础上，改进了一种优化算法，该算法可以把超声成像的信息融合到重建的过程中，从而在重建中可以
+本文在SART算法的基础上，改进了一种优化算法，该算法可以把超声成像的信息融合到重建的过程中，从而在重建中可以
 引导重建图像的生成，使得重建以一种合理的方式融合X射线tomography与超声成像的优势，由此来弥补小角度成像所造成
 的信息缺失。下面是本文所提出的优化算法的基本框架。
 \begin{algo}\label{mysart}
@@ -430,6 +472,7 @@ $\omega,\lambda_h,\lambda_v$
 在算法~\ref{mysart}中，有$\bh,\bv$实际上就是超声提取的梯度信息，这个是直接对超声重建的数据取梯度并经过一定的处理完成的一维向量
 \footnote{直接得到的梯度图像包含有大量的噪声，还不能直接使用，需要经过处理，见章节\ref{sec:gradprocess}}。
 而$\B,\C $则是对图像取梯度的矩阵算子。
+\clearpage
 
 \section{算法展开}\label{sec:algodetail}
 将算法~\ref{mysart}根据前述章节内容展开，我们将得到每一次迭代的过程如下:
@@ -1124,6 +1167,7 @@ $0$，我们的梯度图采用一个简单的正方形作为模板。图\ref{fig
 将模板图像的梯度信息融合到欲想要重建的图像中。
 
 \section{梯度模板信息的处理}
+为了能够提高重建的质量和
 \subsection{TV..算法}
 \subsection{开运算与闭运算}
 
@@ -1137,6 +1181,7 @@ $0$，我们的梯度图采用一个简单的正方形作为模板。图\ref{fig
 \subsection{A矩阵获得}
 \subsection{稀疏矩阵存储}
 \subsection{判断与迭代}
+\section{算法结果}
 \bibliography{thesis}
 \end{document}
 
