@@ -4,6 +4,7 @@
 \usepackage{perpage}
 \usepackage{float}
 \usepackage{placeins}
+\usepackage{extarrows}
 
 
 
@@ -68,18 +69,22 @@ X射线的扫描方向限制，在某些方向上的断层图像质量也较为�
 
 \chapter{绪论}
 \section{背景介绍}
-众所周知，在X-射线被发现后，人们就将之应用于医学上的人体透视检测。然后，直接使用X射线，会直接减少一个维度
-信息，对于很多细微部分的检测会出现很大问题。于是有不少研究者开始探寻从X射线的投影中生成横向断层切片图像的
-方法。Radon在1917的一篇文献中提出了断层摄影（tomography）的数学工作（\cite{radon1986}，为后来的断层影像生成
-提供了基础。在断层摄影中，可以根据获得的投影图像生成探测物体的内部结构。断层摄影相比于传统的投影图像存在着
+计算机断层摄影（Computerized Tomography, CT）
+在断层摄影中，可以根据获得的投影图像生成探测物体的内部结构。断层摄影相比于传统的投影图像存在着
 三个优点，第一，它可以提供足够的深度定位；第二，它
 可以极大提高探测物体的可视性；第三，通过调整动态范围，它可以提高局部组织的对比度，
 从而可以更好进行观测。很快，因为它在人体内部检测的巨大优势，
 它迅速被医疗领域所使用\cite{dobbins2003digital}。
 
+
+\section{研究现状}
+众所周知，在X-射线被发现后，人们就将之应用于医学上的人体透视检测。然后，直接使用X射线，会直接减少一个维度
+信息，对于很多细微部分的检测会出现很大问题。于是有不少研究者开始探寻从X射线的投影中生成横向断层切片图像的
+方法。Radon在1917的一篇文献中提出了断层摄影（tomography）的数学工作（\cite{radon1986}，为后来的断层影像生成
+提供了基础。
+
 随后，在这个方法的基础上人们
 改进并不断提出了新的方法，如带滤波的反向投影算法（Filtered Backprojection, FBP）\cite{kak1979computerized}。
-\section{研究现状}
 \section{小结}
 
 
@@ -94,16 +99,276 @@ X射线的扫描方向限制，在某些方向上的断层图像质量也较为�
 整个CT所采用的探测系统如图\ref{fig:model1}所示。
 \begin{figure}[h]
 \center
-\includegraphics[width=0.5\textwidth]{figure/model1}
+\includegraphics[width=0.8\textwidth]{figure/model1}
 \caption{有限角度CT重建的探测模型}\label{fig:model1}
 \end{figure}
-在整个探测系统中，正下方是一面接收板，宽度为$19.2cm$，长度为$23.4cm$。在接收板宽的正中，长边的边缘处，
-以之为原点建立一个图中所示的直角坐标系，$x$轴沿宽边方向，$y$轴沿长边方向，而$z$轴则垂直向上。
+在整个探测系统中，正下方是一面探测平面，宽度为$19.2cm$，长度为$23.4cm$，其分辨率为$1902*2304$在接收板宽的正中，长边的边缘处，
+以之为原点建立一个图中所示的直角坐标系，$x$轴沿宽边方向，$y$轴沿长边方向，而$z$轴则垂直向上。物块与
+探测器的边缘相平行的放置，且距离探测平面有一定的高度，高度为$0.65cm$。物块的$xoz$
+平面距离探测的边缘约为$0.4cm$\footnote{这个距离未标识出。另外，由于被探测物体内部
+的肿块不在边缘处，所以后期重建的范围小于物体大小，因此这个距离并不重要。}。在探测器中央
+上方垂直$90cm$处有一个X-射线发射管，它可以以它正下方与探测平面的交点为圆心
+进行小角度旋转，正负角度均为$30^\centerdot$。探测管以它为中心向下方发射锥形的光束，
+穿过被测物体并照射在探测平面上，探测平面接收到X-射线，并将吸收量记录传递。探测管每
+隔$3^\centerdot$向探测平面发射一次X射线，一共采集$21$组投影数据。
 \subsection{物体模型}
+物块整体是一个长方体，大小约为$12.7cm*23.4cm*5.08cm$。
+\begin{figure}[h!]
+\center
+\includegraphics[width=0.8\textwidth]{figure/object/front}
+\caption{探测物块正视图}\label{fig:objfront}
+\end{figure}
+\begin{figure}[h!]
+\center
+\includegraphics[width=0.8\textwidth]{figure/object/side}
+\caption{探测物块侧视图}\label{fig:objside}
+\end{figure}
+\begin{figure}[h!]
+\center
+\includegraphics[width=0.8\textwidth]{figure/object/top}
+\caption{探测物块俯视图}\label{fig:objtop}
+\end{figure}
+图\ref{fig:objfront}为物块的正视透视图，图\ref{fig:objside}为
+物块的侧视透视图，而\ref{fig:objtop}则为物块的俯视透视图。
+可以看到，物块内部有大小不等的圆形以及菱形肿块。CT重建的主要目的
+就是恢复重建这些肿块。此外，物块整体本身由不同的物质
+分块组成，而在CT重建中应该能清楚看到不同物质的交界面。
+
 \subsection{超声数据}
+三维超声图像重建数据是一种对CT重建的补充与辅助数据。在使用超声
+探测时，超声以平行于$y$轴的方向向物块发射并探测，由此得到相应的重建
+数据。由于超声探测自身的特点以及它的探测方向特点，它的重建数据在$z$方向分辨率
+较高，边缘清晰且伪影较轻，恰恰可以补充CT有限角度重建的不足。在本文要探究的模型中，将直接使用已经重建完成
+的超声数据。
 
 \section{解析算法}
+正如章节\ref{sec:current}所描述，CT重建主要基于两类方法，第一类便是解析类算法。这类算法主要基于
+傅里叶切片定理（The Fourier Slice Theorem）\cite{bracewell1986fourier},是目前CT成像方面的主流算法。
+\subsection{雷登变换（Radon Transform）}
+雷登变换是将不同角度发射线在途径路径上线性积分后成为的一个和角度与位置相关
+的函数。其基本表达式如下：
+\begin{equation*}
+p_\phi(r)=\int_{\mathcal{L}(r,\phi)}f(x,y)dl
+\end{equation*}
+其中
+\begin{equation*}
+\mathcal{L}(r,\phi)=\{(x,y)\in R^2:x\cos\phi+y\sin\phi=r\}
+\end{equation*}
+这类解析方法要研究的主要目的就是如何从雷登变换函数$p$中将原图像$f(x,y)$所重建出来。
+
+\subsection{傅里叶切片定理}
+CT重建解析类方法的基础就是傅里叶切片定理，它的表述如下：
+令$P_\phi(\nu)$表示雷登变换后函数$p_\phi(r)$的傅里叶变换，也就是
+\begin{equation*}
+P_\phi(\nu)=\int^\infty_{-\infty}p_phi(r)e^{-i2\pi \nu r}dr
+\end{equation*}
+令$F(u,v)$表示原图函数$f(x,y)$的二维傅里叶变换，也就是
+\begin{equation*}
+F(u,v)=\int^\infty_{-\infty}\int^\infty_{-\infty}f(x,y)e^{-i2\pi(ux+vy}dxdy
+\end{equation*}
+结合上述式子，可以得到傅里叶切片定理：
+\begin{equation*}
+P_\phi(\nu)=F(\nu\cos\phi,\nu\sin\phi),\qquad \forall\nu\in R,\quad\forall\phi\in R
+\end{equation*}
+在上式中$F(\nu\cos\phi,\nu\sin\phi)$代表的是$F(u,v)$的极坐标形式。
+
+通过傅里叶切片定理，我们发现在傅里叶变换的情况下，雷登变换形式函数和原图的函数
+被联系在了一起，这也意味着我们可以通过该联系从雷登变换函数中恢复原图的函数。
+
+\subsection{直接傅里叶重建（Direct Fourier reconstruction）}
+根据傅里叶切片定理，可以很自然得到重建的方法\cite{de1968reconstruction}。
+\begin{algo}
+直接傅里叶重建算法
+\begin{enumerate}
+\item{将每个$p_\phi()$函数傅里叶变换获得$P\phi()$}
+\item{使用傅里叶切片定理的关系产生原图的二维傅里叶极坐标表示，也就是
+\begin{equation*}
+F(\rho,\phi)=P_\phi(\rho)
+\end{equation*}}
+\item{将极坐标表示下的$F(\rho,\phi)$转化为直角坐标系下的$F(u,v)$。这个过程需要谨慎考虑插值问题}
+\item{通过傅里叶反变换从$F(u,v)$中获得$f(x,y)$}
+\end{enumerate}
+\end{algo}
+
+\subsection{反向投影-滤波方法（The backproject-filter method）}
+该方法首先将函数$p_\phi()$反向积分成模糊掉的原图函数，再将之傅里叶变换成频域图像，
+通过补偿的方法消除频域上的模糊值，再重新反投影。\cite{smith1973image}
+
+其算法概述如下：
+\begin{algo}
+反向投影-滤波方法
+\begin{enumerate}
+\item{使用带权重的反向投影将函数$p_\phi$变为模糊的原函数$f_b(x,y)$}
+\item{使用傅里叶变换将$f_b(x,y)$获得$F_b(u,v)$}
+\item{在频域使用带角度的锥形滤波
+\begin{equation*}
+\hat{F}(u,v)=\cfrac{\sqrt{u^2+v^2}}{w(\angle_\pi(u,v))}F_b(u,v)
+\end{equation*}
+其中滤波器的具体形式见文献\cite{smith1973image}，它的频率相应为锥形，因此成为锥形滤波器}
+\item{恢复$f(x,y)$的直流分量，最后得到$\hat{F}(u,v)$}
+\item{通过傅里叶反变换将$\hat{F}(u,v)$变为$\hat{f}(x,y)$}
+\end{enumerate}
+\end{algo}
+
+\subsection{滤波—反向投影方法（The filter-backproject method）}
+之前的反向投影-滤波方法是先将未滤波的雷登变换函数
+反向投影产生一个模糊的原图像函数，再将之在频域进行滤波。
+步骤总结如下：
+\begin{equation*}
+f(x,y)\rightarrow\boxed{\text{投影}}
+\rightarrow p_\varphi(r)\rightarrow\boxed{\text{反向投影}}
+\rightarrow f_b(x,y)\rightarrow\boxed{\text{锥形滤波}}\rightarrow
+f(x,y)
+\end{equation*}
+因为头两个操作是线性与移位操作，因此可以将它移动到后面，可以得到
+\begin{equation*}
+f(x,y)\rightarrow\boxed{\text{锥形滤波}}\rightarrow
+\breve{f}(x,y)\rightarrow\boxed{\text{投影}}
+\rightarrow \breve{p}_\varphi(r)\rightarrow\boxed{\text{反向投影}}
+f(x,y)
+\end{equation*}
+由于$f(x,y)$是未知的，上述的方法直接实施是不可行的，但是
+\begin{equation*}
+\breve{p}_\varphi(r)\xlongleftrightarrow{\text{FT}}{}
+\breve{P}_\varphi(\nu)=\breve{F}(\rho,\varphi)\arrowvert_{\rho=\nu}
+=|\rho|F(\rho,\varphi)\arrowvert_{\rho=\nu}=|\nu|F(\nu,\varphi)=|\nu|P_\varphi(\nu)
+\end{equation*}
+因此，我们可以对$p_\varphi(r)$进行滤波，因为形状，我们称之为斜坡滤波（Ramp filters）。
+综合上面所述，滤波-反向投影方法可以描述如下。
+\begin{algo}
+滤波—反向投影方法
+\begin{enumerate}
+\item{对于每个投影角度$\varphi$，计算对应的$p_\varphi$的一维傅里叶变换得到、
+对应的$P_\varphi(\nu)$}
+\item{把$P_\varphi(\nu)$乘上$|\nu|$（斜坡滤波）}
+\item{对于每个$\varphi$，计算$|\nu|P_\varphi(\nu)$的傅里叶变换得到被滤波
+的投影$\breve{p}_\varphi(r)$。在实际操作中，这个过程通常由FFT来完成}
+\item{由于斜坡滤波缺失直流分量，因此要把投影补上缺失的直流分量}
+\item{对$\{\breve{p}_\varphi(r)\}$进行反向投影：
+\begin{equation*}
+\breve{f}(x,y)=\int^\pi_0\breve{p}_\varphi(x\cos\varphi+y\sin\varphi)d\varphi
+\end{equation*}}
+\end{enumerate}
+\end{algo}
 \section{代数重建算法}
+在代数重建类算法中，主要有两种代表性算法，一种是由Gordon, Bender和Herman
+在\cite{gordon1970algebraic}中所提出的Algebric Reconstruction Technique（ART）
+算法，这是此类算法中最早的。另外还有由Anderson和Kak在\cite{andersen1984simultaneous}
+中所提出的Simultaneous Algebraic Reconstruction Technique（SART）算法。作为本文
+的基础，将在后小节中重点讲述上述算法。
+
+\subsection{代数表示概述}
+为了能使用代数重建方法，我们首先需要将投影的过程以代数的方式所表示出来。
+我们知道，图像本是连续的信息，我们为了能在计算机中存储、表示，将之离散化
+为一个一个像素点。
+通常，一束射线通过被测物体\footnote{为了简化问题，这里用平面来表示}，可以用一个线性
+方程来表示出来。当有多束光线经过时，可以以如下方式表示
+\begin{align*}
+w_{11}x_1+w_{12}x_2+w_{13}x_3+\cdots+w_{1N}x_N &= b_1\\
+w_{21}x_1+w_{22}x_2+w_{23}x_3+\cdots+w_{2N}x_N &= b_2\\
+\cdots\\
+w_{M1}x_1+w_{M2}x_2+w_{M3}x_3+\cdots+w_{MN}x_N &= b_M\\
+\end{align*}
+在这里，$w$是一束光线在每个点的权重，$x$是被测图像的每个点。而$N$为像素点总数，$M$
+为光线总数。上述方程也可以写成矩阵形式
+\begin{equation*}
+\bm{W}\x=\bb
+\end{equation*}
+
+而现在的问题是，权重矩阵$\bm{W}$应该如何确定。在\cite{gordon1970algebraic}中，将每个像素定位
+网状格子，如果光线通过这个像素所代表的格子，则把相应的权重置为$1$，否则为$0$。在\cite{shepp1974fourier}
+中，则通过光束与经过的格子所相交面积比例来确定权重。一种Digital Differential 
+Analyzer 算法\cite{foley1990computer}也被用于提高权重计算的速度。当然，上述的
+方法都是基于像素的格形表示。如图\ref{fig:nest}所示。
+\begin{figure}[!h]\label{fig:nest}
+\center
+\includegraphics[width=0.6\textwidth]{figure/ART/zuobiao.jpg}
+\caption{格形表示示意图}
+\end{figure}
+
+\subsection{投影矩阵计算}
+在本文所采用的方法中，将使用文献\cite{andersen1984simultaneous}所使用的代数表示方法。
+
+对于一幅图像$f(x,y)$，为了将其离散化，使用$N$个基图像$\{b_i(x,y)\}$，则存在
+一组实数$g_1,g_2,\cdots,g_N$，有
+\begin{equation}
+f(x,y)\simeq\breve{f}(x,y)\equiv\sum^N_{i=1}g_ib_i(x,y)
+\end{equation}
+$\breve{f}(x,y)$是图像的近似。以$r_j(x,y)=0$表示第$j$个射线的方程，则这个射线
+的投影矩阵可以表示为
+\begin{equation}
+p_j=R_jf(x,y)=\int^\infty_{-\infty}\int^\infty_{-\infty}f(x,y)\delta(r_j(x,y))dxdy
+\end{equation}
+假设$f(x,y)$是一个平方可积函数。对于这个有限维度的模型，投影算子的线性可以
+得到
+\begin{equation}
+R_j\breve{f}(x,y)=\sum^N_{i=1}g_iR_ib_i(x,y)
+\end{equation}
+而在实际的使用时，会将$R_jb_j(x,y)$替换成近似的数值$a_{ij}$来实现计算。
+因此，可以有
+\begin{equation}
+p_j=R_jf(x,y)\simeq R_j\breve{f}(x,y)=\sum^N_{i=1}g_iR_jb_i(x,y)\simeq\sum^N_{i=1}g_ia_{ij}
+\end{equation}
+如果用$e_j$来表示近似所产生的误差，则有
+\begin{equation*}
+p_j=\sum^N_{i=1}g_ia_{ij}+e_j
+\end{equation*}
+
+在选择基准图像时，选择的方式正如上文所说，将图像分割成$N$个等大小的像素格。
+如前所述，这里积分表示的选择有很多。如果不考虑光束的宽度，则需要考虑光束与
+每个像素格子所相交的长度。而如果给光束加上一个有限的长度，则要考虑光束与像素
+格子所相交的面积，而投影矩阵的元素因此也表示为了面积。
+
+为了降低椒盐噪声，许多研究者都采用了这样一种方式来进行代数重建：即对投影的每个
+像素（每个视点），都考虑一条光束\cite{smith1977practical}。这样做的话，被测图像
+的每个像素点都会与探测光束相交多次，因此其噪声就可以被平均而降低。其中，方程数
+大约四倍于被探测图像的像素点数\cite{herman2009fundamentals}。当然，计算量也会提升。
+
+为了得到一个精确的投影描述，对于光束所途径的点，可以采用二次插值的方式来确定。这种
+方式也相对比较简单\cite{herman1976iterative}\cite{andersen1982digital}。每一个
+要计算的点的值由它四周的四个采样点的二次插值来决定。这样，虽然图像本身是离散，
+这种二次插值允许我们从一种连续的角度来进行代数表示。
+
+下面用这种方式来给出$a_{ij}$。考虑一条通过被探测图像的光束$R_j$，将它从通过探测图像
+开始，平均等分为$M_j$个点，用$\Delta s$来表示等分的长度，$\breve{f}(s_{jm})$则
+表示等分点上的灰度值，见图\ref{fig:sart1}。可以得到积分式为
+\begin{figure}[!h]\label{fig:sart1}
+\center
+\includegraphics[width=0.6\textwidth]{figure/ART/sart1}
+\caption{投影计算示意图}
+\end{figure}
+\begin{equation}\label{eq:pj1}
+p_j\simeq\sum^{M_j}_{m=1}\breve{f}(s_{jm})\Delta s
+\end{equation}
+$\breve{f}(s_{jm})$的值，正如之前所述，由它周围的四个点来插值决定，可以写成
+\begin{equation}\label{eq:pj2}
+\breve{f}(s_{jm})=\sum^N_{i=1}d_{ijm}g_i,\qquad \text{for}m=1,2,\cdots,M_j
+\end{equation}
+数值$d$代表的是插值系数。把方程\eqref{eq:pj1}和方程\eqref{eq:pj2}相结合，
+就可以得到沿着光束的积分$p_j$，它是图像采样$g_i$的线性函数形式：
+\begin{equation}
+\begin{split}
+p_j&=\sum^{M_j}_{m=1}\sum^N_{i=1}d_{ijm}g_i\Delta s \\
+&=\sum^N_{i=1}\sum^{M_j}_{m=1}d_{ijm}g_i\Delta s \\
+&=\sum^N_{i=1}a_{ij}g_i
+\end{split}
+\end{equation}
+所以，$a_ij$就可以表示为光束所经过的每一个计算点的插值系数的
+线性组合形式：
+\begin{equation}
+a_{ij}=\sum^{M_j}_{m=1}d_{ijm}\Delta s
+\end{equation}
+在这里，$a_{ij}$需要注意的是，它的尺度大小需要符合真实的物理模型。也就是说，需要
+调整权重以满足$\sum^N_{i=1}a_{ij}$与光束与物体相交的长度$L_j$相等。
+
+此外就是等分步长$\Delta s$。它的大小很重要，如果设置太小，则会加重计算的负担，
+如果设置太大，则可能产生较大噪声且不够精确。因此需要在其中折中取值。
+在\cite{andersen1984simultaneous}中提到，一般$\Delta s$取值为采样步长一半时
+可以在计算量和精确度之间取得一个良好的效果。
+
+\subsection{ART算法}
+\subsection{SART算法}
+\section{算法总结}
 \section{小结}
 
 
@@ -723,7 +988,7 @@ Q_k(x^{(t)}) &= \begin{cases}
                             -(x_k\upp{t} - x_{k+n}\upp{t} - v_k) & k \in \left[imn+1,imn+n\right] \\ &i = 0,1,2\hdots\\
                             -(x_{k-n}\upp{t} - x_{k}\upp{t} - v_{k-n}) &  k \in [imn-n+1,imn] \\ &i= 1,2,3 \hdots
                         \end{cases}  \\
-x_k^{(t+1)}&= x_k\upp{t} + \lambda P_k(x^{(t)}) + \xi Q_k(x^{(t)}) 
+x_k^{(t+1)}&= x_k\upp{t} + \lambda P_k(x^{(t)}) + \xi Q_k(x^{(t)})
 \end{align*}
 在matlab中实现相应的算法。为了方便起见，我们采用二维图像作为模型而不是三维的物理。在二维的情况下，
 两个梯度方向分别选择$x,y$方向梯度，于是上述的算法式子变成二维的形式：
@@ -872,6 +1137,7 @@ $0$，我们的梯度图采用一个简单的正方形作为模板。图\ref{fig
 \subsection{A矩阵获得}
 \subsection{稀疏矩阵存储}
 \subsection{判断与迭代}
+\bibliography{thesis}
 \end{document}
 
 
