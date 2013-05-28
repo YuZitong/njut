@@ -145,6 +145,13 @@
               {}
               {\titlerule*[0.5em]{$\cdot$}\contentspage}
               [\addvspace{0.25pc}]
+              
+\titlecontents{subsection}[6em]
+              {\addvspace{0.1pc}\songti\zihao{-4}}
+              {\thecontentslabel\enspace}
+              {}
+              {\titlerule*[0.5em]{$\cdot$}\contentspage}
+              [\addvspace{0.25pc}]              
 
 \newcommand\Nchapter[1]{%
     \if@mainmatter%
@@ -209,6 +216,6 @@
 \newtheorem{blem}[thm]{引理~}
 \newtheorem{bprop}[thm]{命题~}
 \newtheorem{bcor}[thm]{推论~}
-\renewcommand{\proofname}{{\bf 证明}} 
+\renewcommand{\proofname}{{\bf 证明}}
 
-\makeatother
+\makeatother 
