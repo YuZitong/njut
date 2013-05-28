@@ -287,7 +287,7 @@ Analyzer 算法\cite{foley1990computer}也被用于提高权重计算的速度�
 \caption{格形表示示意图}
 \end{figure}
 
-\subsection{投影矩阵计算}
+\subsection{投影矩阵计算}\label{sec:sartA}
 在本文所采用的方法中，将使用文献\cite{andersen1984simultaneous}所使用的代数表示方法。
 
 对于一幅图像$f(x,y)$，为了将其离散化，使用$N$个基图像$\{b_i(x,y)\}$，则存在
@@ -356,7 +356,7 @@ p_j&=\sum^{M_j}_{m=1}\sum^N_{i=1}d_{ijm}g_i\Delta s \\
 \end{equation}
 所以，$a_ij$就可以表示为光束所经过的每一个计算点的插值系数的
 线性组合形式：
-\begin{equation}
+\begin{equation}\label{eq:computea}
 a_{ij}=\sum^{M_j}_{m=1}d_{ijm}\Delta s
 \end{equation}
 在这里，$a_{ij}$需要注意的是，它的尺度大小需要符合真实的物理模型。也就是说，需要
@@ -446,8 +446,8 @@ $\omega,\lambda_h,\lambda_v$
 分别是三者的迭代步进参数。关于该算法的细节在接下来的章节中进一步描述。
 
 
-
-\section{使用梯度信息的基于SART的优化算法}\label{sec:mysart}
+\section{算法细节描述}
+\subsection{使用梯度信息}\label{sec:mysart}
 在前所述的研究工作中，我们发现:
 \begin{enumerate}
     \item 由于X射线tomography是小角度重建的原因，本质上信息是缺失的。在我们的模型中所直接看到的情况就是肿块
@@ -474,7 +474,7 @@ $\omega,\lambda_h,\lambda_v$
 而$\B,\C $则是对图像取梯度的矩阵算子。
 \clearpage
 
-\section{算法展开}\label{sec:algodetail}
+\subsection{算法展开}\label{sec:algodetail}
 将算法~\ref{mysart}根据前述章节内容展开，我们将得到每一次迭代的过程如下:
 \begin{align}
  L_k(x_i) &= \cfrac{1}{A_{+,k}}\sum^N_{i=1}\cfrac{A_{i,k}}{A_{i,+}}\bigl(b_i-\bar{b_i}(x\upp{t})\bigr) \label{eq:L} \\
@@ -510,8 +510,8 @@ x_k^{(t+1)}&= x_k\upp{t} + \omega L_k(x^{(t)}) + \lambda P_k(x^{(t)}) + \xi Q_k(
 
 
 
-
-\section{优化目标的建立}\label{sec:optobj}
+\section{基于SART优化算法的理论证明}
+\subsection{优化目标的建立}\label{sec:optobj}
 在章节\ref{sec:algodetail}中，提到了被重建的物体需要满足tomograph投影约束与两个梯度约束，在这三个约束中间取到最优化。事实上，基于约束
 的优化也正是SART算法的本质所在。我们知道，在tomography的投影探测中，X射线穿过物体，并被沿途的被测物体物质进行一定量的吸收，最后发射
 到传感器上，传感器检测到射线的吸收量。由此，这个吸收量其实就是被物体该射线所穿过的每个像素沿着探测射线进行累积（积分）的量。由于我们
@@ -544,7 +544,7 @@ x_k^{(t+1)}&= x_k\upp{t} + \omega L_k(x^{(t)}) + \lambda P_k(x^{(t)}) + \xi Q_k(
 
 
 
-\section{梯度下降算法}\label{sec:graddescent}
+\subsection{梯度下降算法}\label{sec:graddescent}
 我们知道，负梯度$-f'(x)$是函数下降最快的方向。因此，如果要求目标最小值的话，
 可以将被优化目标往它的负梯度方向每次步进一些，就能到达一个局部最小值，
 梯度下降算法框架如下：
@@ -651,7 +651,7 @@ r_0=\norm{x_0-x^\star}<\bar{r}=\cfrac{2l}{M}
 
 
 
-\section{基于SART的优化算法推导}
+\subsection{优化问题求解}
 接下来将采用梯度下降算法来推导出算法\ref{mysart}。重新将优化目标\ref{eq:mysartopt}写在这里
 \begin{equation}
 \min_{\x\in R^N}\W\norm{\A\x-\bb}^2 +c\norm{\B\x-\bh}^2+d\norm{\C\x-\bv}^2 \qquad c>0,d>0
@@ -692,7 +692,11 @@ r_0=\norm{x_0-x^\star}<\bar{r}=\cfrac{2l}{M}
 此外，还带有权矩阵$\W$，这与梯度项所带的梯度计算矩阵$\B,\C$的数量级往往并不一样，所以优化目标将变的较为复杂，
 直接采用解析的方法计算合理的步进常数项是难以实现的，因此，将在实验中确定合理的参数项。
 
-下面将推导出该算法的展开具体展开形式。首先要给出计算梯度的计算。先分析$\x$的排列。我们知道，它是将三维的物体数据伸展成一维的。物体的模型
+下面将推导出该算法的展开具体展开形式。
+
+
+\subsection{梯度矩阵计算}
+首先要给出计算梯度的计算。先分析$\x$的排列。我们知道，它是将三维的物体数据伸展成一维的。物体的模型
 示意见图\ref{fig:model2}。
 \begin{figure}[ht]
 \center
@@ -799,6 +803,7 @@ B_{ij} = \begin{cases}
 
 现在，矩阵$\B$和$\C$ 都已经得到了，我们需要对式子\eqref{eq:gradout2}作进一步展开，并得到可以计算的最终结果。
 
+\subsection{展开结果的获得}
 考虑式子
 \begin{equation*}
 \B^T(\bh-\B\x)
@@ -891,10 +896,12 @@ A_{+,j}=\sum_{i=1}^M{A_{i,j}} \\
 
 
 \section{基于SART算法的收敛性}
+
 在章节\ref{sec:graddescent}中，已经提到了梯度下降算法的收敛性在一定的条件下（该条件一般都满足）是线性时间的。
 而SART算法本身就是一种梯度下降算法，加在其前面的是相应的矩阵项$\V^{-1}$，其实是相当于在最小平方误差中的每一个维度
 分别添加了一个相应的参数。而对于SART迭代项的收敛性，在论文\cite{jiang2003convergence}中对其做了详细的总结与证明。
 
+\subsection{SART算法的收敛性证明}
 \cite{jiang2003convergence}中中先证明了SART算法解的存在性。
 令$N(A)$是矩阵$\A$的零空间，则根据正交分解理论有:
 \begin{equation*}
@@ -971,7 +978,8 @@ z\upp{k+1}=z\upp{k}-\omega V^{-1}A^TWAz\upp{k}
 $\{r_k\}$也是收敛的，也就是说，$\lim_{k\rightarrow \infty}r_k$存在。
 最后，可以得到由SART所得到的序列$x\upp{k}$收敛于$P[x_0]+x^\ast$，只要
 $\omega\in (0,2)$。
-
+ 
+\subsection{基于SART算法的收敛性说明}
 上述的证明已经说明了SART算法是收敛的。接下来考虑基于SART的优化算法的收敛性。
 式子\eqref{eq:gradout2}中，我们可以看到，除了SART算法项以外，还多出了两项属于
 梯度约束的迭代计算项。但是可以发现，在我们的图像梯度信息项实际上是
@@ -1017,7 +1025,7 @@ $\omega\in (0,2)$。
 \section{梯度叠加项的可行性}
 在章节\ref{sec:mysart}和\ref{sec:algodetail}中，给出并展开了基于SART的优化算法。在具体实现整体算法之前，先要
 对梯度信息融合的效果作一个预估。
-
+\subsection{实验计算公式}
 我们忽略TOMO重建的项，只考虑如下的迭代计算：
 \begin{align*}
 P_k(x^{(t)}) &= \begin{cases}
@@ -1050,6 +1058,7 @@ x_{ij}^{(t+1)}&= x_k\upp{t} + \lambda P_k(x^{(t)}) + \xi Q_k(x^{(t)})
 \end{align*}
 因为是在matlab中实现，因此重新将索引改成了二维的形式，即$i,j$，其中$X,Y$分别为$x,y$方向的图像边长。
 
+\subsection{实验条件}
 在实验中，采用的原图为和融合的梯度图大小均为$256*256$。原图的所有像素点全部初始化为
 $0$，我们的梯度图采用一个简单的正方形作为模板。图\ref{fig:I1}为原图，图\ref{fig:p1}为所要融合的图像。
 图\ref{fig:px1}，\ref{fig:py1}分别为所要融合的梯度信息图像的$x,y$方向信息。
@@ -1209,12 +1218,12 @@ E(x,y)=\cfrac{1}{2}\sum_{i,j}(x_{ij}-y_{ij})^2
 \end{equation*}
 
 本文直接从网上下载了含有全变分降噪的工具箱来使用。
-\begin{figure}[!h]
+\begin{figure}[!h]\label{fig:beforeTV}
 \center
-\includegraphics[width=0.7\textwidth]{figure/patternp/afterTV.jpg}
-\caption{全变分降噪后}
+\includegraphics[width=0.7\textwidth]{figure/patternp/beforeTV.jpg}
+\caption{全变分降噪前}
 \end{figure}
-\begin{figure}[!h]
+\begin{figure}[!h]\label{fig:afterTV}
 \center
 \includegraphics[width=0.7\textwidth]{figure/patternp/afterTV.jpg}
 \caption{全变分降噪后}
@@ -1260,17 +1269,210 @@ E(x,y)=\cfrac{1}{2}\sum_{i,j}(x_{ij}-y_{ij})^2
 考虑到所提取的梯度有$x$，$z$两个方向，也就两组数据，本文分别在两组方向上的每一个平面进行上面
 的处理过程。也就是说，对于$x$方向的梯度，则在与$x$轴垂直的每层平面上作相应的处理；对于$z$方向
 的梯度，则在与$z$轴垂直的每层平面上作处理。
+\begin{figure}[!h]\label{fig:afterTV}
+\center
+\includegraphics[width=0.7\textwidth]{figure/patternp/gradp.jpg}
+\caption{修正后梯度}
+\end{figure}
+图\ref{fig:gradp}是沿着与$x$方向相垂直的视点所看进去而截取的一片截面，也是图\ref{fig:afterTV}
+通过了梯度截取以及处理之后的图像。可以看到，在这个截面中，梯度
+信息已经十分清晰，且基本没有噪点。
+
+在最后的实验效果中也证明了，这种处理方法的效果是很好的，提取出来的信息对重建的帮助也很大。
+
+
 \section{SART迭代项A矩阵的获得}
+在章节\ref{sec:sartA}中，已经详细描述了在二维平面的投影矩阵获得方法。在本文所实验用的
+模型是一个三维模型，投影矩阵的获得需要作一些改动，当然，基本是类似的。
+
+考虑到探测光束将从物体的上方以不同的角度和位置穿过物体，其有一段将与物体直接相交。根据
+\ref{sec:sartA}所提到的方式，需要将相交的这段线段等分。每个等分点的灰度值由周围的八个顶点
+来决定，因此需要对此进行三维的插值。在投影矩阵中，需要因此来计算插值系数。与二维的双线性插值类似，
+采用三线性插值。相邻八个顶点上的的插值系数可以采用下面公式计算：
+\begin{equation}
+c = \cfrac{l_1l_2l_3}{h_1h_2h_3}
+\end{equation}
+其中，$c$为插值系数，$l_1,l_2,l_3$分别为被插值点坐标到在插值立方体内以该顶点为顶点的三个面的距离，
+而$h_1,h_2,h_3$则为与对应距离平行的立方体的边长值。
+
+每一个像素点上的插值系数，由这束光每个点所产生的插值系数叠加并乘上等分补偿得到。从公式\eqref{eq:computea}可以得到：
+\begin{equation}\label{eq:computea}
+a_{ij}=\sum^{M_j}_{m=1}c_{ijm}\Delta s
+\end{equation}
+
+这里在等分步长的选择上，按照章节\ref{sec:sartA}所提到的，采用采样长度的一半。
 
 \section{迭代方式修正}
+在实际实验中，投影迭代项的计算需要花费大量的时间，且其收敛速度比较快；而相比较，
+梯度迭代项的计算时间短，但是需要迭代较多次才能收敛。因此，迭代公式\eqref{eq:all}并不是直接被使用的。
+
+考虑到迭代公式的每个迭代项都有一个迭代步长系数，而实际上这个补偿系数是不需要固定的。在一些迭代中，如果
+我们设置投影迭代项的步长为$0$，那么实际上在这次迭代中投影数据不参与迭代，也就不需要计算一次投影数据。
+这样，就相当于少部分迭代有投影数据的参与，而大部分迭代只有梯度数据，这样，就可以解决两者收敛情况不一致的
+矛盾。从变步长梯度下降的角度看，这样的迭代方式改进也是合理的。
+
+在实验中，有$21$个不同角度的投影，且总的迭代轮数为$3$轮。因此，采用的迭代次数是投影数据迭代次数为$21*3$，而不含有
+投影数据的迭代次数为其$15$倍，也就是$21*3*15$。
+
+经过测试，这样的迭代次数是合理的，能够让CT重建和梯度信息融合这两种过程都达到一个较好的结果。
 
 \section{代码实现}
+在最终试验测试中，主要采用Matlab和C程序共同运行的方式。其中,Matlab主要用来负责超声数据的
+处理过程，包括配准，全变分降噪，提取梯度，以及梯度修正等等，并将之存储为可以被C
+程序所识别的数据形式。而C程序由于其高效的特性，被用于计算量最大的重建部分。重建部分也是
+代码实现最重要的部分，以下将作一些详细介绍。
+
 \subsection{模型参数}
+由于系统在几何上有较多的信息，因此，模型所具有的参数也较为繁多。见表\ref{tab:para}。
+\begin{table}[!h]\label{tab:para}
+\center
+\caption{模型参数}
+\vspace{1pc}
+\begin{tabular}{r|l}
+\hline
+参数        &     大小\\
+\hline
+探测面长     &   1152   \\
+\hline
+探测面宽    &     580 \\
+\hline  
+重建区域长   &   1008 \\
+\hline 
+重建区域宽  &  524 \\
+\hline   
+重建区域底面高度  &   157  \\
+\hline
+重建区域顶面高度  &   372   \\
+\hline 
+重建区域纵向层数  &  430   \\
+\hline
+投影组数       &  21 \\
+\hline
+\end{tabular}
+\end{table}
 \subsection{数据的存储与导入}
-\subsection{A矩阵获得}
+实验中会涉及到大量数据的处理，包括投影数据以及超声数据。
+
+对于投影数据，是以dat格式存储，每个数据以浮点格式存储在文件内，通过C代码可以直接
+读取和导入。而对于超声数据，原始是以tif格式存储。在实验中，使用Matlab将之读取，
+并经过处理之后，将之存储为dat格式供C程序读取。
+\subsection{投影矩阵获得}
+投影矩阵的获得是C程序中很重要的部分之一，其步骤主要如下：
+\begin{enumerate}
+\item 根据每一个投影点计算对应的光束的直线方程参数。
+\item 确定参数之后，判断每一条光束与重建区域在哪些边缘平面相交。并根据结果，确定每一条光束与重建区域的边缘交点。
+\item 根据边缘交点，在光束上找到每一个等分点位置，并根据等分点坐标，以方程\eqref{eq:computed}来计算插值系数。
+\item 对每一条光束作同样计算，就可以得到投影矩阵。
+\end{enumerate}
 \subsection{稀疏矩阵存储}
-\subsection{判断与迭代}
+实际上，分析投影矩阵，可以发现，对于一条光束$j$，元素$a_{ij}$只有在光束经过的地方附近的点才具有插值系数，别的则为$0$。
+而这与整个重建区域的体素相比，是非常稀少的。因此，投影矩阵可以采用稀疏矩阵存储。
+
+如果只是按照普通的矩阵存储，则需要花费的空间是很大的。如果将其以稀疏矩阵方式存储，则在读取时
+只会少花费一点时间，但是可以节约大量的内存。因此，在C程序代码中，每次计算出一条光束的
+插值系数，就将之存储到稀疏矩阵的数据结构之中。
 \section{算法结果}
+在使用基于SART的优化算法之前，我们将投影数据按照SART的方式直接重建一次，这次重建不包含
+任何先验知识。选取一些结果如图\ref{fig:origin1}-\ref{fig:origin4}所示。
+\begin{figure}[!ht]\label{fig:origin1}
+\center
+\includegraphics[width=0.6\textwidth]{figure/result/origin1.jpg}
+\caption{直接CT重建截面1}
+\end{figure}
+\begin{figure}[!ht]\label{fig:origin2}
+\center
+\includegraphics[width=0.6\textwidth]{figure/result/origin2.jpg}
+\caption{直接CT重建截面2}
+\end{figure}
+\begin{figure}[!ht]\label{fig:origin3}
+\center
+\includegraphics[width=0.6\textwidth]{figure/result/origin3.jpg}
+\caption{直接CT重建截面3}
+\end{figure}
+\begin{figure}[!ht]\label{fig:origin4}
+\center
+\includegraphics[width=0.6\textwidth]{figure/result/origin4.jpg}
+\caption{直接CT重建截面4}
+\end{figure}
+
+从图中可以看到，由于有限角度CT成像的原因，图中的肿块边缘在随着物体深度变化时，
+并没有明显的变化，而是逐渐模糊消失的。且图\ref{fig:origin4}已经到了肿块应该
+完全消失的深度，但是却依然能看到肿块模糊的影子。这种情况是十分不利于CT重建结果的应用的。
+
+在边缘的变化上，超声数据有着明显的优势。见图\ref{fig:us1}-\ref{fig:us4}
+\begin{figure}[!ht]\label{fig:us1}
+\center
+\includegraphics[width=0.6\textwidth]{figure/result/us1.jpg}
+\caption{超声数据截面1}
+\end{figure}
+\begin{figure}[!ht]\label{fig:us2}
+\center
+\includegraphics[width=0.6\textwidth]{figure/result/us2.jpg}
+\caption{超声数据截面2}
+\end{figure}
+\begin{figure}[!ht]\label{fig:us3}
+\center
+\includegraphics[width=0.6\textwidth]{figure/result/us3.jpg}
+\caption{超声数据截面3}
+\end{figure}
+\begin{figure}[!ht]\label{fig:us4}
+\center
+\includegraphics[width=0.6\textwidth]{figure/result/us4.jpg}
+\caption{超声数据截面4}
+\end{figure}
+从图中可以看到，超声数据边缘的变化是十分明显的，与同样深度的原始CT重建相比。然而超声数据
+有两点劣势可以直接从图中看到。首先，超声数据的分辨率相比TOMO是很低的，此外，超声数据的噪声
+十分严重。
+
+在使用了基于SART的优化算法来重建CT图像，其产生的结果如图\ref{fig:final1}-\ref{fig:final4}：
+\begin{figure}[!ht]\label{fig:final1}
+\center
+\includegraphics[width=0.6\textwidth]{figure/result/final1.jpg}
+\caption{优化的CT重建1}
+\end{figure}
+\begin{figure}[!ht]\label{fig:final2}
+\center
+\includegraphics[width=0.6\textwidth]{figure/result/final2.jpg}
+\caption{优化的CT重建2}
+\end{figure}
+\begin{figure}[!ht]\label{fig:final3}
+\center
+\includegraphics[width=0.6\textwidth]{figure/result/final3.jpg}
+\caption{优化的CT重建3}
+\end{figure}
+\begin{figure}[!ht]\label{fig:final4}
+\center
+\includegraphics[width=0.6\textwidth]{figure/result/final4.jpg}
+\caption{优化的CT重建4}
+\end{figure}
+由于计算的原因，图像的颜色相反。此外，由于超声图像对其中一个
+肿块的探测很差，因此相应的肿块就没有被优化到。
+对比相应的超声图像和原始CT重建图像，可以看到，
+优化后的CT重建具备了上述两个图像的优点。对比同样深度的优化CT图像和
+原始CT图像，优化后的CT图像在边缘上出现了
+明显的变化，边缘也更加清晰易见。
+
+在提高了CT图像重建的边缘变化清晰度的同时，优化CT重建所检测到的探测物体内部
+的分层（可以看到图中有三个不同的层次）并没有因为超声图像相反的
+颜色特性而被破坏掉。而很明显地，优化后的CT重建同样保留了CT图像噪声小、分辨率高的
+优点。
+
+注意到变小的肿块后方还有一层重影，这是因为本文所使用的迭代方式所致的，因为两种迭代项
+有很多次是分开迭代的，因此会造成重建出来的图像含有原始CT重建的影子。如果两者的同时迭代
+且次数较多，可以解决此问题，但是考虑到时间成本，就没有实行此方案。
+\section{小结}
+本章节主要是对提出的算法进行了验证，也解决了本文所要研究的探测模型问题。
+
+对于提出的基于SART的优化算法，本章先是在不适用投影约束的情况下，用玩具模型测试了
+使用梯度信息作为约束的优化算法的可行性，并对使用的参数有了一个大概范围的估计。从实验中，
+可以看出，需要合理选择迭代的步进大小与迭代次数，才可以达到一个效率与精确度平衡。
+
+接下来讨论了本算法在具体问题上实施所需要的细节，包括三维情况下投影矩阵的获得，
+迭代次数的修改，以及在代码上所使用的语言与数据结构等等。
+
+在最后，给出了原始CT重建、超声数据以及优化后CT重建结果在同一层下的对比。可以很清楚看到，
+基于SART的优化算法有效改进了CT重建的边缘模糊不清问题，同时又保留了CT重建的高分辨率以及
+低噪声的优势，从而看出，该算法是完全可行的。
 \bibliography{thesis}
 \chapter{致谢}
 \end{document}
