@@ -70,24 +70,97 @@ X射线的扫描方向限制，在某些方向上的断层图像质量也较为�
 
 \chapter{绪论}
 \section{背景介绍}
-计算机断层摄影（Computerized Tomography, CT）
-在断层摄影中，可以根据获得的投影图像生成探测物体的内部结构。断层摄影相比于传统的投影图像存在着
+计算机断层摄影（Computerized Tomography, CT）通常用于医疗诊断，可以用于探测物体内部的结构。它通过扫描
+物体，可以根据获得的投影图像生成探测物体的内部结构。断层摄影相比于传统的投影图像存在着
 三个优点，第一，它可以提供足够的深度定位；第二，它
 可以极大提高探测物体的可视性；第三，通过调整动态范围，它可以提高局部组织的对比度，
 从而可以更好进行观测。很快，因为它在人体内部检测的巨大优势，
 它迅速被医疗领域所使用\cite{dobbins2003digital}。
+近二十年来，CT技术在许多国家得到了迅猛的发展与普及。例如在美国，一年就有$7200$万次CT检测\cite{berrington2009projected}。
 
+CT检测的一个典型应用例子就是乳腺癌的检测。乳腺摄影可以说是检测出早期乳腺癌的最有效的途径，
+它可以减少大约$30\%-50\%$的死亡率。
+然而，仍然有大约$30\%$的乳腺癌患者在常规的乳腺摄影检测中发生误诊，导致其错失了检测出乳腺癌的良机。
+导致这些错误癌症诊断的一个主要原因就是重叠的乳腺组织对肿块部分发生了遮挡。
+同时，在乳腺摄影中，正常乳腺组织的叠加有时看起来就像一个边界模糊的肿块，
+这就可能导致患者因为假阳性而被召回重新检查。
+而CT检测如果应用在乳腺检测中，则可以把肿块分离检测，并不会发生重叠作用，可以解决上述的乳腺摄影中的劣势问题。
 
 \section{研究现状}
-众所周知，在X-射线被发现后，人们就将之应用于医学上的人体透视检测。然后，直接使用X射线，会直接减少一个维度
+众所周知，在X-射线被发现后，人们就将之应用于医学上的人体透视检测。直接使用X射线，会直接减少一个维度
 信息，对于很多细微部分的检测会出现很大问题。于是有不少研究者开始探寻从X射线的投影中生成横向断层切片图像的
-方法。Radon在1917的一篇文献中提出了断层摄影（tomography）的数学工作（\cite{radon1986}，为后来的断层影像生成
-提供了基础。
+方法。Radon在1917的一篇文献中提出了断层摄影（tomography）的数学工作\cite{radon1986}，为后来的断层影像生成
+提供了基础。HounsLeld 在1972年的发明了第一台真正意义上的CT扫描仪，使得CT技术开始被广泛应用于医疗领域。它的发明
+也说明了，通过大量的计算来重建一个横截面是可行的。
 
-随后，在这个方法的基础上人们
-改进并不断提出了新的方法，如带滤波的反向投影算法（Filtered Backprojection, FBP）\cite{kak1979computerized}。
+经过长时间的发展，特别是计算机计算能力的提升以及重建技术的发展，如今的切片重建质量已经有了显著的提高。同时，
+一些重建技术也被研究者们所提出与应用。而这些技术，主要分为两大类\cite{mueller1998fast}\cite{chlewicki20013d}：
+\begin{itemize}
+\item 基于傅里叶切片定理（The Fourier Slice Theorem）\cite{bracewell1986fourier}的解析类方法。
+\item 基于迭代的，通过代数计算解决线性系统方程的代数重建算法。
+\end{itemize}
+
+对于解析类算法，其代表是滤波-反向投影算法（Filtered Backprojection algorithm, FBP）
+\cite{bracewell1967inversion}\cite{ramachandran1971three}。
+该算法通过将投影图像在频域进行一个斜坡滤波再反向投影
+到一个重建的点阵上来完成重建工作。
+
+而第一个同时也一直使用到现在的代数重建算法是Gordon等人\cite{gordon1970algebraic}
+所提出的Algebraic Reconstruction Tehnique (ART)算法。这种算法通过不断迭代
+和更新的方式来求解系统方程的解，使得其正向投影之后与投影图像所匹配。
+
+早起的CT扫描仪使用的是迭代算法，但是它重建开销大、重建质量并不高。而随着傅里叶切片定理的发现和使用，
+使得可以有更少时间开销且更高重建质量的FBP算法十分流行。
+
+随着CT扫描数据获得方式的改变，CT扫描仪变的越来越复杂。如今使用的CT扫描仪通常是基于二维切片的，
+它使用一维的探测器，并由此来重建二维切片。对于三维物体，它重建三维物体的多个二维切片。于是，接收器和发射器围绕
+探测物体（通常是病人）旋转，并一层接一层来重建。但是这种方式通常有以下为题：
+\begin{itemize}
+\item 由于三维物体由二维切片组成，因此在两个切片之间的区域无法被探测
+\item 这样的重建需要消耗大量的时间，因此可能会使得被探测的人体内的动态部分影响到数据的获得。
+\end{itemize}
+第一个问题，在后来的螺旋式扫描仪得到了解决。这种扫描方式同样适用一维的探测仪，不同的是两者螺旋前进，特殊的
+算法用于螺旋数据的CT重建。但是，这种方式依然存在问题：
+\begin{itemize}
+\item 尽管基于二维的切片扫描速度已经加快了很多，但是病人的呼吸等动作仍然会干扰数据的采集。
+\item 由于放射源发射的射线是锥束，然而每次重建的时候只利用了需要与切片相平行的光束，有许多光束实际上并没有被利用到。
+\item 一维数据的来源并不统一，因此在整体结构的对齐上可能存在问题。
+\end{itemize}
+
+鉴于上述的问题，直接基于锥束的三维重建引发了研究者们的强烈兴趣，并提出了不少算法。
+Feldkamp算法\cite{badea2000volume}是在锥束重建中使用最多的算法，它是一种近似重建算法，因为在一圈的旋转中，锥束的投影
+并不能填满傅里叶变换空间。它之所以易于实施，是因为其将扇形锥束方程泛化，且只需要一圈的重建轨迹。
+
+Simultaneous Algebraic Reconstruction Technique（SART）算法由Anderson和Kak在\cite{andersen1984simultaneous}
+中所提出，它是一种代数重建算法，将集中不同的代数重建算法的优点合并，它有如下优势：
+\begin{itemize}
+\item 不同的几何结构的光束都可以容易实现。
+\item 很容易在算法中提供要探测模型的先验知识。
+\item 可以使用更少的探测光束\cite{mueller1998fast}。
+\item 使用该算法，可以任意选定探测面的形状，这样的话对于不同的探测物体，可以不需要改变谈侧面
+\end{itemize}
+
+此外，在某些设备下，以及需要减少对人体某些部位的照射的要求下，需要实现有限角度的CT投影。
+众所周知，在完整的数据上进行CT重建，所得到的
+结果是十分稳定的。特别是在完整的投影数据上，可以使用FBP算法进行
+CT重建，且不需要重建物体的先验知识。稳定的重建，意味着可以真实重建三维
+目标。然而，在有限的角度下，就会存在一些问题。
+
+良好的有限角度CT重建在理论上是可能的，Smith, Solmon 和Wagner\cite{smith1977practical}
+以及Natterer 在\cite{natterer2002mathematics}中讨论并得出了相应的结论。
+然而，有限角度的重建是不适定的，或者对噪声十分敏感，在文献
+\cite{davison1983ill}\cite{maass1987x}中对此有相关讨论。
+在\cite{quinto1993singularities}中，讨论了可能在小角度下进行稳定重建的情况。其中一项结果就是，如果部分投影与一段
+尖锐不连续曲线或沿曲线跳跃的图像相切，则可以稳定重建图像。否则，在没有先验知识的情况下，是无法在
+有限角度的CT投影数据上重建高质量的图像的。
 \section{小结}
+在本章节中，对CT检测的背景以及一些与本论文相关的研究现状进行了讨论。
 
+可以知道，如今，对直接三维重建的CT技术的要求越来越高，同时，有限角度无论在安全、经济上的
+考虑而言，都是如今的研究趋势。而针对上述这两点，三维CT重建的算法就成了一个很重要的研究课题。
+本章中提到了两个直接三维重建的算法，一个是SART算法，还有一个是Feldkamp算法。由于SART算法
+的各种优势，在后文中，将着重讨论SART算法，并且基于SART算法，提出一个融合先验知识的算法框架，并使用超声重建
+数据作为先验知识展开了算法细节，与进行了实验。
 
 
 \chapter{研究问题详述}
@@ -144,7 +217,7 @@ X射线的扫描方向限制，在某些方向上的断层图像质量也较为�
 
 \section{解析类算法}
 正如章节\ref{sec:current}所描述，CT重建主要基于两类方法，第一类便是解析类算法。这类算法主要基于
-傅里叶切片定理（The Fourier Slice Theorem）\cite{bracewell1986fourier},是目前CT成像方面的主流算法。
+傅里叶切片定理\cite{bracewell1986fourier},是目前CT成像方面的主流算法。
 \subsection{雷登变换（Radon Transform）}
 雷登变换是将不同角度发射线在途径路径上线性积分后成为的一个和角度与位置相关
 的函数。其基本表达式如下：
@@ -281,10 +354,10 @@ w_{M1}x_1+w_{M2}x_2+w_{M3}x_3+\cdots+w_{MN}x_N &= b_M\\
 中，则通过光束与经过的格子所相交面积比例来确定权重。一种Digital Differential 
 Analyzer 算法\cite{foley1990computer}也被用于提高权重计算的速度。当然，上述的
 方法都是基于像素的格形表示。如图\ref{fig:nest}所示。
-\begin{figure}[!h]\label{fig:nest}
+\begin{figure}[!h]
 \center
 \includegraphics[width=0.6\textwidth]{figure/ART/zuobiao.jpg}
-\caption{格形表示示意图}
+\caption{格形表示示意图}\label{fig:nest}
 \end{figure}
 
 \subsection{投影矩阵计算}\label{sec:sartA}
@@ -333,10 +406,10 @@ p_j=\sum^N_{i=1}g_ia_{ij}+e_j
 下面用这种方式来给出$a_{ij}$。考虑一条通过被探测图像的光束$R_j$，将它从通过探测图像
 开始，平均等分为$M_j$个点，用$\Delta s$来表示等分的长度，$\breve{f}(s_{jm})$则
 表示等分点上的灰度值，见图\ref{fig:sart1}。可以得到积分式为
-\begin{figure}[!h]\label{fig:sart1}
+\begin{figure}[!h]
 \center
 \includegraphics[width=0.6\textwidth]{figure/ART/sart1}
-\caption{投影计算示意图}
+\caption{投影计算示意图}\label{fig:sart1}
 \end{figure}
 \begin{equation}\label{eq:pj1}
 p_j\simeq\sum^{M_j}_{m=1}\breve{f}(s_{jm})\Delta s
@@ -1172,28 +1245,6 @@ $0$，我们的梯度图采用一个简单的正方形作为模板。图\ref{fig
 将模板图像的梯度信息融合到欲想要重建的图像中。
 
 
-\chapter{超声数据的配准}
-\section{简介}
-
-
-
-\section{配准的理论方法}
-\subsection{超声数据的特点}\label{sec:usattri}
-分析超声数据的图像可以知道:
-\begin{enumerate}
-\item 肿块分为三种类型分别为，大球、小球与正八面体。大球直径为$40$像素，
-小球直径为$20$像素，正八面体对角线为$40$像素。
-\item 三种密度介质块沿$Z$轴方向的长度分别为$188$像素，
-$130$像素和$333$像素。
-\item 沿$y$轴方向并无明显分界。
-\end{enumerate}
-
-
-通过上述的特点描述，可以得出，对于超声数据与CT重建数据的配准并不困难，而所涉及
-的操作基本均为线性类的操作。唯一需要注意的是，要提高配准的精确度，如果有些许的
-不匹配，都会比较严重影响到优化CT重建的过程。
-
-
 
 \section{梯度模板信息的处理}
 为了能够提高重建的质量（包括重建后的被测物体清晰度以及降低噪声），我们需要从
@@ -1211,7 +1262,68 @@ $489\times191\time498$，显然，两者的尺度是不匹配的。因此，根�
 
 因此，对于超声数据如何处理，是一个比较重要的问题。这个处理过程包括配准，降噪和去除无效斑块三个步骤。
 前两者在超声数据原数据上作处理，而后者则在提取的梯度数据上进行处理。
-\subsection{超声数据的配准}
+\subsection{配准的理论依据}
+分析超声数据的图像可以知道:
+\begin{enumerate}
+\item 肿块分为三种类型分别为，大球、小球与正八面体。大球直径为$40$像素，
+小球直径为$20$像素，正八面体对角线为$40$像素。
+\item 三种密度介质块沿$Z$轴方向的长度分别为$188$像素，
+$130$像素和$333$像素。
+\item 沿$y$轴方向并无明显分界。
+\end{enumerate}
+
+通过上述的特点描述，可以得出，对于超声数据与CT重建数据的配准并不困难，而所涉及
+的操作基本均为线性类的操作。唯一需要注意的是，要提高配准的精确度，如果有些许的
+不匹配，都会比较严重影响到优化CT重建的过程。
+
+\subsection{配准方法}
+从上文描述中，可以看到，配准主要有旋转与镜面对称、比例调整、平移、
+对比度调整和微调五个步骤。其基本示意图如图\ref{fig:matchmethod}
+\begin{figure}[!ht]
+\center
+\includegraphics[width=0.7\textwidth]{figure/match/method.jpg}
+\caption{配准基本过程}
+\label{fig:matchmethod}
+\end{figure}
+\begin{description}
+\item[旋转与镜面对称]
+超声数据和CT重建数据是上下颠倒以及镜面对称的，所以首先需要将超声数据
+校正到与CT重建数据方向上一致。
+
+首先是解决上下颠倒问题，需要将数据与$yoz$平面平行的平面取出，将之分别
+旋转$180^o$，再重新组合。
+
+接下再解决镜面对称问题，将数据中与$xoy$平面平行的平面取出，沿反方向重新
+组合，即可。
+
+\item[比例调整]
+比例调整中，需要正确放缩超声数据的大小比例，以使得各个肿块的中心位置能够
+与CT重建数据完全一致。由于是三维数据，这里采用三线性插值。
+
+首先，需要分析相应的肿块间距与CT重建数据的相对应肿块间距的比例关系，从分析
+里可以得出$x,z$方向比例为$\tfrac{21}{31}$，而$y$方向则需要将$192$放缩到$1009$。
+接下来调整比例，调整比例分为两个部分，
+先是在$x,z$方向上进行比例放缩，然后再在$y$方向上进行比例放缩。
+
+在$x,z$方向上的比例放缩，是沿着$y$轴方向取出与$xoz$相平行的平面，再将坐标按照
+比例放缩之后插值。
+
+在调整完成了$xoz$平面之后，再在$y$平面，按照同样的方法插值。为了达到更好的
+效果，将分别进行两次插值。
+
+\item[平移]
+比例调整之后的超声数据与CT重建数据的坐标并不是完全对齐的，需要进行平移，
+主要是去除一些多余的边缘等，使肿块中心位置能够对齐。
+
+\item[对比度调节]
+超声数据本身的对比度并不是很高，因此还需要对灰度值进行一定的调整。为了
+能保留超声数据背景介质快和肿块的信息，取出在$51-204$的灰度值范围，
+并进行图像均衡化处理。
+
+\item[微调]
+在上述过程完成之后，还需要对超声数据的坐标进行细微的调节以完成超声数据
+和CT重建数据的精准匹配。
+\end{description}
 
 \subsection{全变分降噪}
 对于超声重建的原始数据，通常因为超声探测的原因，本身具备有不小的噪声。因此，第一步是
@@ -1247,15 +1359,17 @@ E(x,y)=\cfrac{1}{2}\sum_{i,j}(x_{ij}-y_{ij})^2
 \end{equation*}
 
 本文直接从网上下载了含有全变分降噪的工具箱来使用。
-\begin{figure}[!h]\label{fig:beforeTV}
+\begin{figure}[!h]
 \center
 \includegraphics[width=0.7\textwidth]{figure/patternp/beforeTV.jpg}
 \caption{全变分降噪前}
+\label{fig:beforeTV}
 \end{figure}
-\begin{figure}[!h]\label{fig:afterTV}
+\begin{figure}[!h]
 \center
 \includegraphics[width=0.7\textwidth]{figure/patternp/afterTV.jpg}
 \caption{全变分降噪后}
+\label{fig:afterTV}
 \end{figure}
 图\ref{fig:beforeTV}为全变分降噪之前的原始数据，而图\ref{fig:afterTV}为全变分降噪之后。
 对比两图，可以发现，正如全变分降噪理论上的特点，噪声被很好地消除，同时，边缘细节并
@@ -1298,10 +1412,11 @@ E(x,y)=\cfrac{1}{2}\sum_{i,j}(x_{ij}-y_{ij})^2
 考虑到所提取的梯度有$x$，$z$两个方向，也就两组数据，本文分别在两组方向上的每一个平面进行上面
 的处理过程。也就是说，对于$x$方向的梯度，则在与$x$轴垂直的每层平面上作相应的处理；对于$z$方向
 的梯度，则在与$z$轴垂直的每层平面上作处理。
-\begin{figure}[!h]\label{fig:afterTV}
+\begin{figure}[!h]
 \center
 \includegraphics[width=0.7\textwidth]{figure/patternp/gradp.jpg}
 \caption{修正后梯度}
+\label{fig:gradp}
 \end{figure}
 图\ref{fig:gradp}是沿着与$x$方向相垂直的视点所看进去而截取的一片截面，也是图\ref{fig:afterTV}
 通过了梯度截取以及处理之后的图像。可以看到，在这个截面中，梯度
@@ -1353,9 +1468,9 @@ a_{ij}=\sum^{M_j}_{m=1}c_{ijm}\Delta s
 
 \subsection{模型参数}
 由于系统在几何上有较多的信息，因此，模型所具有的参数也较为繁多。见表\ref{tab:para}。
-\begin{table}[!h]\label{tab:para}
+\begin{table}[!h]
 \center
-\caption{模型参数}
+\caption{模型参数}\label{tab:para}
 \vspace{1pc}
 \begin{tabular}{r|l}
 \hline
@@ -1403,25 +1518,25 @@ a_{ij}=\sum^{M_j}_{m=1}c_{ijm}\Delta s
 \section{算法结果}
 在使用基于SART的优化算法之前，我们将投影数据按照SART的方式直接重建一次，这次重建不包含
 任何先验知识。选取一些结果如图\ref{fig:origin1}-\ref{fig:origin4}所示。
-\begin{figure}[!ht]\label{fig:origin1}
+\begin{figure}[!ht]
 \center
 \includegraphics[width=0.6\textwidth]{figure/result/origin1.jpg}
-\caption{直接CT重建截面1}
+\caption{直接CT重建截面1}\label{fig:origin1}
 \end{figure}
-\begin{figure}[!ht]\label{fig:origin2}
+\begin{figure}[!ht]
 \center
 \includegraphics[width=0.6\textwidth]{figure/result/origin2.jpg}
-\caption{直接CT重建截面2}
+\caption{直接CT重建截面2}\label{fig:origin2}
 \end{figure}
-\begin{figure}[!ht]\label{fig:origin3}
+\begin{figure}[!ht]
 \center
 \includegraphics[width=0.6\textwidth]{figure/result/origin3.jpg}
-\caption{直接CT重建截面3}
+\caption{直接CT重建截面3}\label{fig:origin3}
 \end{figure}
-\begin{figure}[!ht]\label{fig:origin4}
+\begin{figure}[!ht]
 \center
 \includegraphics[width=0.6\textwidth]{figure/result/origin4.jpg}
-\caption{直接CT重建截面4}
+\caption{直接CT重建截面4}\label{fig:origin4}
 \end{figure}
 
 从图中可以看到，由于有限角度CT成像的原因，图中的肿块边缘在随着物体深度变化时，
@@ -1429,50 +1544,50 @@ a_{ij}=\sum^{M_j}_{m=1}c_{ijm}\Delta s
 完全消失的深度，但是却依然能看到肿块模糊的影子。这种情况是十分不利于CT重建结果的应用的。
 
 在边缘的变化上，超声数据有着明显的优势。见图\ref{fig:us1}-\ref{fig:us4}
-\begin{figure}[!ht]\label{fig:us1}
-\center
+\begin{figure}[!ht]
 \includegraphics[width=0.6\textwidth]{figure/result/us1.jpg}
-\caption{超声数据截面1}
+\caption{超声数据截面1}\label{fig:us1}
+\center
 \end{figure}
-\begin{figure}[!ht]\label{fig:us2}
+\begin{figure}[!ht]
 \center
 \includegraphics[width=0.6\textwidth]{figure/result/us2.jpg}
-\caption{超声数据截面2}
+\caption{超声数据截面2}\label{fig:us2}
 \end{figure}
-\begin{figure}[!ht]\label{fig:us3}
+\begin{figure}[!ht]
 \center
 \includegraphics[width=0.6\textwidth]{figure/result/us3.jpg}
-\caption{超声数据截面3}
+\caption{超声数据截面3}\label{fig:us3}
 \end{figure}
-\begin{figure}[!ht]\label{fig:us4}
+\begin{figure}[!ht]
 \center
 \includegraphics[width=0.6\textwidth]{figure/result/us4.jpg}
-\caption{超声数据截面4}
+\caption{超声数据截面4}\label{fig:us4}
 \end{figure}
 从图中可以看到，超声数据边缘的变化是十分明显的，与同样深度的原始CT重建相比。然而超声数据
 有两点劣势可以直接从图中看到。首先，超声数据的分辨率相比TOMO是很低的，此外，超声数据的噪声
 十分严重。
 
 在使用了基于SART的优化算法来重建CT图像，其产生的结果如图\ref{fig:final1}-\ref{fig:final4}：
-\begin{figure}[!ht]\label{fig:final1}
+\begin{figure}[!ht]
 \center
 \includegraphics[width=0.6\textwidth]{figure/result/final1.jpg}
-\caption{优化的CT重建1}
+\caption{优化的CT重建1}\label{fig:final1}
 \end{figure}
-\begin{figure}[!ht]\label{fig:final2}
+\begin{figure}[!ht]
 \center
 \includegraphics[width=0.6\textwidth]{figure/result/final2.jpg}
-\caption{优化的CT重建2}
+\caption{优化的CT重建2}\label{fig:final2}
 \end{figure}
-\begin{figure}[!ht]\label{fig:final3}
+\begin{figure}[!ht]
 \center
 \includegraphics[width=0.6\textwidth]{figure/result/final3.jpg}
-\caption{优化的CT重建3}
+\caption{优化的CT重建3}\label{fig:final3}
 \end{figure}
-\begin{figure}[!ht]\label{fig:final4}
+\begin{figure}[!ht]
 \center
 \includegraphics[width=0.6\textwidth]{figure/result/final4.jpg}
-\caption{优化的CT重建4}
+\caption{优化的CT重建4}\label{fig:final4}
 \end{figure}
 由于计算的原因，图像的颜色相反。此外，由于超声图像对其中一个
 肿块的探测很差，因此相应的肿块就没有被优化到。
