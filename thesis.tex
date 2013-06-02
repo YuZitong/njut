@@ -37,7 +37,7 @@
 \newcommand\inner[1]{\langle #1\ \rangle}
 \DeclareMathOperator*{\argmin}{\arg\!\min}
 
-
+\renewcommand\footnotesize{\zihao{5}}
 \MakePerPage{footnote}
 
 \begin{document}
@@ -46,28 +46,60 @@
 \frontmatter
 \begin{abstract}
 \kaishu\zihao{-4}
-C-TOMO（Computed Tomography，即计算机断层扫描）是一种医学影像技术。
-它通过X射线所产生数据来计算被投射物体的断层影像。
-由于断层影像给诊断、观测所带来的便利，C-TOMO技术被广泛应用于医疗领域。
-各领域对于C-TOMO技术所产生的图像质量也有了越来越高的要求。小角度的C-TOMO技术有助于减少
-C-TOMO成像的成本，但在图像质量上不如全角度的C-TOMO，会出现边界模糊等问题，此外，由于
-X射线的扫描方向限制，在某些方向上的断层图像质量也较为不好。在C-TOMO计算时，我们还可以
-采用一些其他手段获得关于被测的物体的一些先验知识，如果能够将这些先验知识以某种形式应用到成像
-的过程中，并使之约束C-TOMO成像的过程，则可以使成像结果获得提升。本论文是针对特定的三维物体，
-以超声成像（US，UltraSound）的数据作为先验知识进行的小角度C-TOMO成像。对于成像算法，我采用改进
-的SART迭代算法，通过提取超声成像的梯度信息，并将之作为SART迭代优化过程中的约束条件，正则化为优化目标
-，从而明显改进了成像的质量，也把US图像的优势融合到了C-TOMO成像之中。
+X射线CT~（Computed Tomography，即计算机断层扫描）重建，是一种医学影像技术。
+它通过X射线所产生数据来重建被投射物体的断层影像，
+由于断层影像给诊断、治疗所带来的便利，CT技术被广泛应用于医疗领域。
 
-\keywords{计算机断层扫描，小角度，先验知识，优化，SART算法，超声成像}
+对于传统采用一维探测器的二维切片CT重建，使用二维探测器
+直接三维重建可以以更快的速度
+获取数据，同时也能更好保留三维物体的局部细节。此外，有限角度CT重建相对于全角度CT重建，
+采样速率更高，因此减小时间过长对数据造成的干扰，同时也避免过多照射对病人的损害。但是
+有限角度重建在没有先验知识的情况下，一般是无法稳定重建被探测物体，会产生边缘模糊等问题。
+在本文中，将研究如何利用先验知识，来提高在有限角度下直接三维CT成像的质量。
+
+考虑到
+SART算法~（Simultaneous Algebraic Reconstruction Technique）在直接三维CT成像上，具有适应不同几何关系的系统、
+可以嵌入先验知识、能够对有限角度CT投影数据进行重建的特点，本文
+在SART的基础上提出一种优化算法框架。该框架将SART算法写成优化目标的形式，并将先验知识的约束
+添加到优化目标里，从而可以较好融合先验知识与投影数据进行重建。
+
+本论文将针对特定的三维物体，
+从超声成像~（UltraSound Imaging）重建的数据中提取出梯度信息作为先验知识，代入到优化算法框架里并展开为具体特定的算法，
+由此来重建CT成像。得到的优化图像与直接CT成像相比，在物体内部结构细节探测上，尤其是边缘探测上表现很好，一定程度
+上补偿了有限角度的劣势。
+
+\keywords{CT成像；有限角度；先验知识；优化；SART算法；超声成像}
 \end{abstract}
 
 \begin{englishabstract}
+\zihao{-4}
+X-ray CT(Computed Tomography) is a medical procedure, which utilizes the data produced by X-ray to reconstruct
+the tomographic images of objects. CT is popular in various medical disciplines due to its convenience in
+diagnosis and therapeutics.
 
+Compared with the traditional 2D
+''sliced'' CT which utilizes 1D detector, reconstructing 3D objects directly by using 2D detector holds some advantages.
+The sampling procedure will be faster, and more details of 3D objects can be preserved.  Also, if we obtain
+projection data from limited angles instead of full angles, the sampling rate will be higher so as to reduce the disturbance by
+long sampling time and the danger caused by X-ray. However, generally limited angle CT reconstruction is not able to gain high
+quality without prior knowledge, e.g. some details will be blurred.
+
+The Simultaneous Algebraic Reconstruction Technique (SART)
+can adapt to different rays geometry and reconstruct 3D object directly
+from limited angle 2D projection data. Also, prior knowledge is possible to be embedded into SART procedure. Considering this,
+we propose an optimization algorithm framework based on it. In this framework, we rewrite SART as an optimization form, and
+insert prior knowledge into the objective function of the optimization problem. In this way, we can improve quality of the result.
+
+In this thesis, we will extract prior knowledge from an ultrasound reconstruction of the objects and use it
+in the framework. Compared with general limited angle CT, the optimized result behaves better in details, especially edges of the inner structure
+of the object.
+
+\englishkeywords{CT; limited angle; prior knowledge; optimization problem; SART; Ultrasound Imaging}
 \end{englishabstract}
 \NJUTtableofcontents
 \mainmatter
 
-
+\songti\zihao{-4}
 \chapter{绪论}
 \section{背景介绍}
 计算机断层摄影（Computerized Tomography, CT）通常用于医疗诊断，可以用于探测物体内部的结构。它通过扫描
@@ -89,9 +121,9 @@ CT检测的一个典型应用例子就是乳腺癌的检测。乳腺摄影可以
 \section{研究现状}\label{sec:current}
 众所周知，在X-射线被发现后，人们就将之应用于医学上的人体透视检测。直接使用X射线，会直接减少一个维度
 信息，对于很多细微部分的检测会出现很大问题。于是有不少研究者开始探寻从X射线的投影中生成横向断层切片图像的
-方法。Radon在1917的一篇文献中提出了断层摄影（tomography）的数学工作\cite{radon1986}，为后来的断层影像生成
+方法。Radon在1917的一篇文献中给出了CT重建的数学理论基础\cite{radon1986}，为后来的断层影像生成
 提供了基础。HounsLeld 在1972年的发明了第一台真正意义上的CT扫描仪，使得CT技术开始被广泛应用于医疗领域。它的发明
-也说明了，通过大量的计算来重建一个横截面是可行的。
+也说明通过大量的计算来重建一个横截面是可行的。
 
 经过长时间的发展，特别是计算机计算能力的提升以及重建技术的发展，如今的切片重建质量已经有了显著的提高。同时，
 一些重建技术也被研究者们所提出与应用。而这些技术，主要分为两大类\cite{mueller1998fast}\cite{chlewicki20013d}：
@@ -109,7 +141,7 @@ CT检测的一个典型应用例子就是乳腺癌的检测。乳腺摄影可以
 所提出的Algebraic Reconstruction Tehnique (ART)算法。这种算法通过不断迭代
 和更新的方式来求解系统方程的解，使得其正向投影之后与投影图像所匹配。
 
-早起的CT扫描仪使用的是迭代算法，但是它重建开销大、重建质量并不高。而随着傅里叶切片定理的发现和使用，
+早期的CT扫描仪使用的是迭代算法，但是它重建开销大、重建质量并不高。而随着傅里叶切片定理的发现和使用，
 使得可以有更少时间开销且更高重建质量的FBP算法十分流行。
 
 随着CT扫描数据获得方式的改变，CT扫描仪变的越来越复杂。如今使用的CT扫描仪通常是基于二维切片的，
@@ -132,12 +164,12 @@ Feldkamp算法\cite{badea2000volume}是在锥束重建中使用最多的算法�
 并不能填满傅里叶变换空间。它之所以易于实施，是因为其将扇形锥束方程泛化，且只需要一圈的重建轨迹。
 
 Simultaneous Algebraic Reconstruction Technique（SART）算法由Anderson和Kak在\cite{andersen1984simultaneous}
-中所提出，它是一种代数重建算法，将集中不同的代数重建算法的优点合并，它有如下优势：
+中所提出，它是一种代数重建算法，将几种不同的代数重建算法的优点合并，它有如下优势：
 \begin{itemize}
 \item 不同的几何结构的光束都可以容易实现。
 \item 很容易在算法中提供要探测模型的先验知识。
 \item 可以使用更少的探测光束\cite{mueller1998fast}。
-\item 使用该算法，可以任意选定探测面的形状，这样的话对于不同的探测物体，可以不需要改变谈侧面
+\item 使用该算法，可以任意选定探测面的形状，这样的话对于不同的探测物体，可以不需要改变谈侧面。
 \end{itemize}
 
 此外，在某些设备下，以及需要减少对人体某些部位的照射的要求下，需要实现有限角度的CT投影。
@@ -176,17 +208,17 @@ CT重建，且不需要重建物体的先验知识。稳定的重建，意味着
 \includegraphics[width=0.8\textwidth]{figure/model1}
 \caption{有限角度CT重建的探测模型}\label{fig:model1}
 \end{figure}
-在整个探测系统中，正下方是一面探测平面，宽度为$19.2cm$，长度为$23.4cm$，其分辨率为$1902*2304$在接收板宽的正中，长边的边缘处，
+在整个探测系统中，正下方是一面探测平面，宽度为$19.2cm$，长度为$23.4cm$，其分辨率为$1902\times2304$在接收板宽的正中，长边的边缘处，
 以之为原点建立一个图中所示的直角坐标系，$x$轴沿宽边方向，$y$轴沿长边方向，而$z$轴则垂直向上。物块与
 探测器的边缘相平行的放置，且距离探测平面有一定的高度，高度为$0.65cm$。物块的$xoz$
 平面距离探测的边缘约为$0.4cm$\footnote{这个距离未标识出。另外，由于被探测物体内部
 的肿块不在边缘处，所以后期重建的范围小于物体大小，因此这个距离并不重要。}。在探测器中央
 上方垂直$90cm$处有一个X-射线发射管，它可以以它正下方与探测平面的交点为圆心
-进行小角度旋转，正负角度均为$30^\centerdot$。探测管以它为中心向下方发射锥形的光束，
+进行小角度旋转，正负角度均为$30^。$。探测管以它为中心向下方发射锥形的光束，
 穿过被测物体并照射在探测平面上，探测平面接收到X-射线，并将吸收量记录传递。探测管每
 隔$3^\centerdot$向探测平面发射一次X射线，一共采集$21$组投影数据。
 \subsection{物体模型}
-物块整体是一个长方体，大小约为$12.7cm*23.4cm*5.08cm$。
+物块整体是一个长方体，大小约为$12.7cm\times23.4cm\times5.08cm$。
 \begin{figure}[h!]
 \center
 \includegraphics[width=0.8\textwidth]{figure/object/front}
@@ -202,8 +234,8 @@ CT重建，且不需要重建物体的先验知识。稳定的重建，意味着
 \includegraphics[width=0.8\textwidth]{figure/object/top}
 \caption{探测物块俯视图}\label{fig:objtop}
 \end{figure}
-图\ref{fig:objfront}为物块的正视透视图，图\ref{fig:objside}为
-物块的侧视透视图，而\ref{fig:objtop}则为物块的俯视透视图。
+图~\ref{fig:objfront}为物块的正视透视图，图~\ref{fig:objside}为
+物块的侧视透视图，而图~\ref{fig:objtop}则为物块的俯视透视图。
 可以看到，物块内部有大小不等的圆形以及菱形肿块。CT重建的主要目的
 就是恢复重建这些肿块。此外，物块整体本身由不同的物质
 分块组成，而在CT重建中应该能清楚看到不同物质的交界面。
@@ -216,75 +248,76 @@ CT重建，且不需要重建物体的先验知识。稳定的重建，意味着
 的超声数据。
 
 \section{解析类算法}
-正如章节\ref{sec:current}所描述，CT重建主要基于两类方法，第一类便是解析类算法。这类算法主要基于
+正如章节~\ref{sec:current}所描述，CT重建主要基于两类方法，第一类便是解析类算法。这类算法主要基于
 傅里叶切片定理\cite{bracewell1986fourier},是目前CT成像方面的主流算法。
-\subsection{雷登变换（Radon Transform）}
-雷登变换是将不同角度发射线在途径路径上线性积分后成为的一个和角度与位置相关
+\subsection{雷登变换}
+雷登变换（Radon Transform）是将不同角度发射线在途径路径上线性积分后成为的一个和角度与位置相关
 的函数。其基本表达式如下：
 \begin{equation*}
-p_\phi(r)=\int_{\mathcal{L}(r,\phi)}f(x,y)dl
+p_\varphi(r)=\int_{\mathcal{L}(r,\varphi)}f(x,y)dl
 \end{equation*}
 其中
 \begin{equation*}
-\mathcal{L}(r,\phi)=\{(x,y)\in R^2:x\cos\phi+y\sin\phi=r\}
+\mathcal{L}(r,\varphi)=\{(x,y)\in R^2:x\cos\varphi+y\sin\varphi=r\}
 \end{equation*}
 这类解析方法要研究的主要目的就是如何从雷登变换函数$p$中将原图像$f(x,y)$所重建出来。
 
 \subsection{傅里叶切片定理}
 CT重建解析类方法的基础就是傅里叶切片定理，它的表述如下：
-令$P_\phi(\nu)$表示雷登变换后函数$p_\phi(r)$的傅里叶变换，也就是
+令$P_\phi(\nu)$表示雷登变换后函数$p_\varphi(r)$的傅里叶变换，也就是
 \begin{equation*}
-P_\phi(\nu)=\int^\infty_{-\infty}p_phi(r)e^{-i2\pi \nu r}dr
+P_\varphi(\nu)=\int^\infty_{-\infty}p_\varphi(r)e^{-i2\pi \nu r}dr
 \end{equation*}
 令$F(u,v)$表示原图函数$f(x,y)$的二维傅里叶变换，也就是
 \begin{equation*}
-F(u,v)=\int^\infty_{-\infty}\int^\infty_{-\infty}f(x,y)e^{-i2\pi(ux+vy}dxdy
+F(u,v)=\int^\infty_{-\infty}\int^\infty_{-\infty}f(x,y)e^{-i2\pi(ux+vy)}dxdy
 \end{equation*}
 结合上述式子，可以得到傅里叶切片定理：
 \begin{equation*}
-P_\phi(\nu)=F(\nu\cos\phi,\nu\sin\phi),\qquad \forall\nu\in R,\quad\forall\phi\in R
+P_\varphi(\nu)=F(\nu\cos\varphi,\nu\sin\varphi),\qquad \forall\nu\in R,\quad\forall\varphi\in R
 \end{equation*}
-在上式中$F(\nu\cos\phi,\nu\sin\phi)$代表的是$F(u,v)$的极坐标形式。
+在上式中$F(\nu\cos\varphi,\nu\sin\varphi)$代表的是$F(u,v)$的极坐标形式。
 
 通过傅里叶切片定理，我们发现在傅里叶变换的情况下，雷登变换形式函数和原图的函数
 被联系在了一起，这也意味着我们可以通过该联系从雷登变换函数中恢复原图的函数。
 
-\subsection{直接傅里叶重建（Direct Fourier reconstruction）}
+\subsection{直接傅里叶重建}
 根据傅里叶切片定理，可以很自然得到重建的方法\cite{de1968reconstruction}。
 \begin{algo}
-直接傅里叶重建算法
+直接傅里叶重建算法（Direct Fourier reconstruction）
 \begin{enumerate}
-\item{将每个$p_\phi()$函数傅里叶变换获得$P\phi()$}
-\item{使用傅里叶切片定理的关系产生原图的二维傅里叶极坐标表示，也就是
+\item 将每个$p_\varphi()$函数傅里叶变换获得$P\varphi()$
+\item 使用傅里叶切片定理的关系产生原图的二维傅里叶极坐标表示，也就是
 \begin{equation*}
-F(\rho,\phi)=P_\phi(\rho)
-\end{equation*}}
-\item{将极坐标表示下的$F(\rho,\phi)$转化为直角坐标系下的$F(u,v)$。这个过程需要谨慎考虑插值问题}
-\item{通过傅里叶反变换从$F(u,v)$中获得$f(x,y)$}
+F(\rho,\varphi)=P_\varphi(\rho)
+\end{equation*}
+\item 将极坐标表示下的$F(\rho,\varphi)$转化为直角坐标系下的$F(u,v)$。这个过程需要谨慎考虑插值问题
+\item 通过傅里叶反变换从$F(u,v)$中获得$f(x,y)$
 \end{enumerate}
 \end{algo}
 
-\subsection{反向投影-滤波方法（The backproject-filter method）}
-该方法首先将函数$p_\phi()$反向积分成模糊掉的原图函数，再将之傅里叶变换成频域图像，
-通过补偿的方法消除频域上的模糊值，再重新反投影。\cite{smith1973image}
+\subsection{反向投影-滤波方法}
+反向投影-滤波方法（The backproject-filter method）首先将函数$p_\varphi()$反向积分成模糊掉的原图函数，再将之傅里叶变换成频域图像，
+通过补偿的方法消除频域上的模糊值，再重新反投影\cite{smith1973image}。
 
 其算法概述如下：
 \begin{algo}
 反向投影-滤波方法
 \begin{enumerate}
-\item{使用带权重的反向投影将函数$p_\phi$变为模糊的原函数$f_b(x,y)$}
-\item{使用傅里叶变换将$f_b(x,y)$获得$F_b(u,v)$}
-\item{在频域使用带角度的锥形滤波
+\item 使用带权重的反向投影将函数$p_\varphi$变为模糊的原函数$f_b(x,y)$
+\item 使用傅里叶变换将$f_b(x,y)$获得$F_b(u,v)$
+\item 在频域使用带角度的锥形滤波
 \begin{equation*}
 \hat{F}(u,v)=\cfrac{\sqrt{u^2+v^2}}{w(\angle_\pi(u,v))}F_b(u,v)
 \end{equation*}
-其中滤波器的具体形式见文献\cite{smith1973image}，它的频率相应为锥形，因此成为锥形滤波器}
-\item{恢复$f(x,y)$的直流分量，最后得到$\hat{F}(u,v)$}
-\item{通过傅里叶反变换将$\hat{F}(u,v)$变为$\hat{f}(x,y)$}
+其中滤波器的具体形式见文献\cite{smith1973image}，它的频率相应为锥形，因此成为锥形滤波器
+\item 恢复$f(x,y)$的直流分量，最后得到$\hat{F}(u,v)$
+\item 通过傅里叶反变换将$\hat{F}(u,v)$变为$\hat{f}(x,y)$
 \end{enumerate}
 \end{algo}
 
-\subsection{滤波—反向投影方法（The filter-backproject method）}
+\subsection{滤波—反向投影方法}
+下面介绍滤波—反向投影方法（The filter-backproject method）。
 之前的反向投影-滤波方法是先将未滤波的雷登变换函数
 反向投影产生一个模糊的原图像函数，再将之在频域进行滤波。
 步骤总结如下：
@@ -351,7 +384,7 @@ w_{M1}x_1+w_{M2}x_2+w_{M3}x_3+\cdots+w_{MN}x_N &= b_M\\
 
 而现在的问题是，权重矩阵$\bm{W}$应该如何确定。在\cite{gordon1970algebraic}中，将每个像素定位
 网状格子，如果光线通过这个像素所代表的格子，则把相应的权重置为$1$，否则为$0$。在\cite{shepp1974fourier}
-中，则通过光束与经过的格子所相交面积比例来确定权重。一种Digital Differential 
+中，则通过光束与经过的格子所相交面积比例来确定权重。一种Digital Differential
 Analyzer 算法\cite{foley1990computer}也被用于提高权重计算的速度。当然，上述的
 方法都是基于像素的格形表示。如图\ref{fig:nest}所示。
 \begin{figure}[!h]
@@ -510,10 +543,10 @@ $\x^{(t+1)}\leftarrow \omega\bL(\x^{(t)}) + \lambda\bP(\x^{(t)}) + \xi\bQ(\x^{(t
 \end{algo}
 
 在算法\ref{mysart}中，$\x$代表的是所重建的数据，为一维向量，是将立体的物体模型以确定方向的坐标延伸而成。
-$\bL(x^{(k)})$,分别是tomo约束的迭代增量，而$\bP(x^{(k)})$和$ \bQ(x^{(k)})$是超声数据的信息
+$\bL(x^{(k)})$，分别是CT投影约束的迭代增量，而$\bP(x^{(k)})$和$ \bQ(x^{(k)})$是超声数据的信息
 的迭代增量\footnote{在算法中可以增加多个先验知识，在本文中我们使用了两个信息，分别为超声数据的不同方向所提取的，
-具体见章节\ref{sec:mysart}，后同。}。矩阵$\A$是在Tomography中X射线的投影矩阵，$\V$是对角矩阵，它的对角元素
-是$V_{j,j}=A_{+,j}$,$\W$也是对角矩阵，其元素为$V_{j,j}=A_{i,+}$,$\B,\C$是提取超声信息所用的矩阵，
+具体见章节\ref{sec:mysart}，后同。}。矩阵$\A$是在CT中X射线的投影矩阵，$\V$是对角矩阵，它的对角元素
+是$V_{j,j}=A_{+,j}$,$\W$也是对角矩阵，其元素为$W_{i,i}=\cfrac{1}{A_{i,+}}$，$\B,\C$是提取超声信息所用的矩阵，
 $\bh,\bv$则是超声信息中所提取出来信息，也是一维向量。
 $\omega,\lambda_h,\lambda_v$
 分别是三者的迭代步进参数。关于该算法的细节在接下来的章节中进一步描述。
@@ -523,18 +556,18 @@ $\omega,\lambda_h,\lambda_v$
 \subsection{使用梯度信息}\label{sec:mysart}
 在前所述的研究工作中，我们发现:
 \begin{enumerate}
-    \item 由于X射线tomography是小角度重建的原因，本质上信息是缺失的。在我们的模型中所直接看到的情况就是肿块
+    \item 有限角度X射线CT重建，本质上信息是缺失的。在我们的模型中所直接看到的情况就是肿块
     在垂直方向上的大小变化不清晰，并没有清楚的变化边缘，而是呈现逐渐模糊掉的形式。这点是超声数据可以弥补的，
     它在肿块边界的变化上有明显的优势。
-    \item 超声重建的探测方向与x射线tomography的探测方向并不相同。x射线tomography的探测方向是在被测物体上方往下
-    放射，而放射管在一个小角度里转动。相比之下超声重建的探测方向是被测物体的边上以垂直于tomography的方向发射的，
+    \item 超声重建的探测方向与x射线CT的探测方向并不相同。x射线CT的探测方向是在被测物体上方往下
+    放射，而放射管在一个小角度里转动。相比之下超声重建的探测方向是被测物体的边上以垂直于CT的方向发射的，
     由此可以知道两者在物体不同部分的信息也并不相同。特别是在经过了两者数据的配准之后，在沿超声探测方向上实际上已经
     有了插值数据，而这些数据实际上如果完全应用于重建是不合理的。
     \item 物体内不同材料对X射线和超声的吸收特性是不一样的，甚至可能会呈现相反的趋势。
     \item 超声重建后的数据存在着不小的噪声。
 \end{enumerate}
-在上述讨论中，我们可以发现，直接应用超声数据到重建中是不合理的，因为超声数据有许多冗余的信息会误导到tomo重建。同时，
-我们可以发现，我们所需要的是超声重建数据的边缘信息。超声数据对肿块清晰的边缘可以弥补tomography重建中肿块边缘信息的缺失，
+在上述讨论中，我们可以发现，直接应用超声数据到重建中是不合理的，因为超声数据有许多冗余的信息会误导到CT重建。同时，
+我们可以发现，我们所需要的是超声重建数据的边缘信息。超声数据对肿块清晰的边缘可以弥补CT重建中肿块边缘信息的缺失，
 同时即使材料对X射线和超声的吸收特性不同，不同材料之间的边缘信息也是一致的。因此，如果能有效利用边缘信息，我们便可以把
 超声信息的优势加入到数据重建中。
 
@@ -570,7 +603,7 @@ x_k^{(t+1)}&= x_k\upp{t} + \omega L_k(x^{(t)}) + \lambda P_k(x^{(t)}) + \xi Q_k(
 \eqref{eq:P}, \eqref{eq:Q}是已经将梯度运算矩阵$\B,\C$代入的结果。而方程
 \eqref{eq:all}将三项的迭代项通过步进参数调整后加到$\x$上进行迭代。可以看到，该算法的展开结果与SART算法相比，
 是在SART的基础上增加了两项超声梯度信息项，这两项超声梯度信息项将超声的梯度信息融合到了重建中。在后面的部分中我们可以看到，这种
-算法可以使得被重建的物体将在满足tomograph投影约束。
+算法可以使得被重建的物体将在满足CT投影约束。
 \begin{equation*}
 \A\x = \bb
 \end{equation*}
@@ -585,8 +618,8 @@ x_k^{(t+1)}&= x_k\upp{t} + \omega L_k(x^{(t)}) + \lambda P_k(x^{(t)}) + \xi Q_k(
 
 \section{基于SART优化算法的理论证明}
 \subsection{优化目标的建立}\label{sec:optobj}
-在章节\ref{sec:algodetail}中，提到了被重建的物体需要满足tomograph投影约束与两个梯度约束，在这三个约束中间取到最优化。事实上，基于约束
-的优化也正是SART算法的本质所在。我们知道，在tomography的投影探测中，X射线穿过物体，并被沿途的被测物体物质进行一定量的吸收，最后发射
+在章节~\ref{sec:algodetail}中，提到了被重建的物体需要满足CT投影约束与两个梯度约束，在这三个约束中间取到最优化。事实上，基于约束
+的优化也正是SART算法的本质所在。我们知道，在CT投影探测中，X射线穿过物体，并被沿途的被测物体物质进行一定量的吸收，最后发射
 到传感器上，传感器检测到射线的吸收量。由此，这个吸收量其实就是被物体该射线所穿过的每个像素沿着探测射线进行累积（积分）的量。由于我们
 需要采用数值方法计算，物体的像素被我们离散，所以这个吸收量实际上就是射线途径的物体像素的累积和。对于每一条射线，我们都
 可以用一个相应的矩阵来代表它的路径。它实际上就是与物体等大小的一个矩阵。我们将物体的像素写成一位列向量$\x$的形式后，该矩阵实际上就变成
@@ -606,7 +639,7 @@ x_k^{(t+1)}&= x_k\upp{t} + \omega L_k(x^{(t)}) + \lambda P_k(x^{(t)}) + \xi Q_k(
 \begin{equation}
 \x = \argmin_{\x\in R^N}\W\norm{\A\x-\bb}^2 +\norm{\B\x-\bh}^2+\norm{\C\x-\bv}^2 \notag
 \end{equation}
-实际上，这样并不是最合理的，因为这样可能会使得最后的数据偏向tomo的约束方向或者偏向梯度约束方向。注意我们是要使得重建的数据在一定程度上
+实际上，这样并不是最合理的，因为这样可能会使得最后的数据偏向CT投影约束方向或者偏向梯度约束方向。注意我们是要使得重建的数据在一定程度上
 被引向梯度约束，因此，可以在上面的优化目标中增加参数$c,d$用来控制各个约束对数据的影响程度，这些参数可以在实验中确定一个最佳值，因此
 ，方程变为
 \begin{equation}
@@ -660,7 +693,7 @@ f(y) &\le f(x) + \inner{f'(x),y-x}+\frac{L}{2}\norm{y-x}^2  \\
 \Delta (h)=-h(1-\frac{h}{2}L)\rightarrow\min_h
 \end{equation*}
 取这个函数的导数，我们可以得到$\Delta '(h)=hL-1=0$，因此，解
-是$h^\star=\frac{1}{L}$，同时这也是$\Delta(h)$的最小值。
+是$h^\ast=\frac{1}{L}$，同时这也是$\Delta(h)$的最小值。
 
 因此，前式变为
 \begin{equation*}
@@ -679,22 +712,22 @@ f(x_k)-f(x_{k+1})\ge \cfrac{\omega}{L}\norm{f'(x_k)}^2
 将上面的式子以$k=0,\hdots,N$累加起来，可以得到
 \begin{equation}
 \cfrac{\omega}{L}\sum^N_{k=0}\norm{f'(x_k)}^2\le f(x_0)-f(x_N)
-\le f(x_0)-f^\star
+\le f(x_0)-f^\ast
 \end{equation}
-其中$f^\star$是对问题\eqref{eq:gdopt}的最优化值。因此，
+其中$f^\ast$是对问题\eqref{eq:gdopt}的最优化值。因此，
 由上式我们可以得出
 \begin{equation*}
 \norm{f'(x_k)}\rightarrow 0 \qquad k\rightarrow \infty
 \end{equation*}
 也就是说，被优化函数的梯度$f'(x)$可以在一定次数的迭代之后趋向于$0$。定义收敛序列
 \begin{equation*}
-g^\star_N=\min_{0\le k\le N}g_k
+g^\ast_N=\min_{0\le k\le N}g_k
 \end{equation*}
 其中$g_k=\norm{f'(x_k)}^2$。于是，可以得到下述不等式：
 \begin{equation}
-g^\star_N \le \cfrac{1}{\sqrt{N+1}}[\cfrac{1}{\omega}L(f(x_0)-f^\star)]^{1/2}
+g^\ast_N \le \cfrac{1}{\sqrt{N+1}}[\cfrac{1}{\omega}L(f(x_0)-f^\ast)]^{1/2}
 \end{equation}
-上市右边项提示了$g^\star_N$与$N$的关系。
+上市右边项提示了$g^\ast_N$与$N$的关系。
 
 在\cite{nesterov2003}中还对梯度下降算法的收敛性进行了分析。有定理
 \begin{thm}\label{thm:graddecent}
@@ -702,18 +735,18 @@ g^\star_N \le \cfrac{1}{\sqrt{N+1}}[\cfrac{1}{\omega}L(f(x_0)-f^\star)]^{1/2}
 \begin{enumerate}
 \item{$f\in C^{2,2}_M(R^n)$}
 \item{存在函数$f$的局部最小值，且在这个点上它的Hessian是正定的}
-\item{存在一些边界$0<l\le L<\infty$,对于在点$x^\star$的Hessian来说，有
+\item{存在一些边界$0<l\le L<\infty$,对于在点$x^\ast$的Hessian来说，有
 \begin{equation*}
-lI_n\le f''(x^\star)\le LI_n
+lI_n\le f''(x^\ast)\le LI_n
 \end{equation*}}
 \end{enumerate}
 且令$x_0$足够接近局部最小值：
 \begin{equation*}
-r_0=\norm{x_0-x^\star}<\bar{r}=\cfrac{2l}{M}
+r_0=\norm{x_0-x^\ast}<\bar{r}=\cfrac{2l}{M}
 \end{equation*}
 于是使用合适的步进值的梯度下降方法可以以如下的速率收敛：
 \begin{equation*}
-\norm{x_k-x^\star}\le \cfrac{\bar{r}r_0}{\bar{r}-r_0}(1-\cfrac{l}{L+l})^k
+\norm{x_k-x^\ast}\le \cfrac{\bar{r}r_0}{\bar{r}-r_0}(1-\cfrac{l}{L+l})^k
 \end{equation*}
 \end{thm}
 也就是说，梯度下降算法是线性收敛的。在章节\ref{sec:optobj}中提到，我们的目标函数为多个范数非负权相加的形式。由于范数
@@ -740,7 +773,7 @@ r_0=\norm{x_0-x^\star}<\bar{r}=\cfrac{2l}{M}
 使用梯度下降，我们有
 \begin{equation}\label{eq:gradout}
 \begin{split}
-\x\upp{t+1}&=\x\upp{t}-\cfrac{\omega}{2}\V^{-1}\nabla F(\x\upp{t})\\
+\x\upp{t+1}&=\x\upp{t}-\cfrac{\omega}{2}\V^{-1}\nabla \bF(\x\upp{t})\\
 &=\x\upp{t} + \omega\V^{-1}\A^T\W(\bb-\A\x\upp{k})
            + c\omega\V^{-1}\B^T(\bh-\B\x)
            + d\omega\V^{-1}\C^T(\bv-\C\x)
@@ -758,10 +791,10 @@ r_0=\norm{x_0-x^\star}<\bar{r}=\cfrac{2l}{M}
 这样可以使得正常的SART可以不被破坏\footnote{SART的设置本身具有良好的收敛性，这点我们在后文中会提到}，而
 在上面的最后一步中，我们将$\omega\V^{-1}$和梯度相自带的
 常数$c,d$（可以是矩阵）一起合并成一个简单的常数项$\lambda ,\xi$，这个步骤实际上就是一定程度
-上把梯度项的迭代和tomogaphy的投影项的迭代过程分离开来。如果常数项选择不当的话，轻的后果是可能使得其中一些项的作用超过其它项，而
+上把梯度项的迭代和CT投影项的迭代过程分离开来。如果常数项选择不当的话，轻的后果是可能使得其中一些项的作用超过其它项，而
 严重的话则从定理
 \ref{thm:graddecent}中，我们可以知道，会使得
-迭代过程不再收敛。可以发现，我们的优化目标中含有矩阵$\A$，它是一个复杂的大矩阵（tomography投影矩阵）,
+迭代过程不再收敛。可以发现，我们的优化目标中含有矩阵$\A$，它是一个复杂的大矩阵（CT投影矩阵）,
 此外，还带有权矩阵$\W$，这与梯度项所带的梯度计算矩阵$\B,\C$的数量级往往并不一样，所以优化目标将变的较为复杂，
 直接采用解析的方法计算合理的步进常数项是难以实现的，因此，将在实验中确定合理的参数项。
 
@@ -805,7 +838,7 @@ g_i = \begin{cases}
 \C = \begin{pmatrix}
 1 & 0 & 0 & 0 & \cdots &-1 & 0 &0 &0 &\cdots \\
 0 & 1 & 0 & 0 &\cdots &0 & -1 &0 &0 &\cdots \\
-\hdotsfor[3]{3}& 1& \cdots &\hdotsfor[3]{3}&-1&\cdots \\
+\hdotsfor[3]{2}& 1& \hdotsfor[3]{2} &\hdotsfor[3]{2}&-1&\hdotsfor[3]{2} \\
 0 & 0 & 0 & \hdotsfor[3]{5}&0&0 \\
 \hdotsfor[3]{10}\\
 \hdotsfor[3]{10}\\
@@ -822,7 +855,7 @@ g_i = \begin{cases}
 \0 & \0 & \0 &\cdots & \0 & \0 &\0 \cdots
 \end{pmatrix}
 \end{equation*}
-其中，$\bI$是一个大小为$mn * mn$的单位矩阵，而$bm 0$ 则是大小为$mn * mn$的零矩阵。
+其中，$\bI$是一个大小为$mn \times mn$的单位矩阵，而$bm 0$ 则是大小为$mn \times mn$的零矩阵。
 于是我们可以得到关于$\C$ 矩阵的归纳式：
 \begin{equation}\label{eq:C}
 C_{ij} = \begin{cases}
@@ -855,7 +888,7 @@ C_{ij} = \begin{cases}
 \0 & \0 & \0 &\cdots & \0 & \0 &\0 \cdots
 \end{pmatrix}
 \end{equation*}
-其中，$\tilde{\bI}$是一个大小为$n * n$的矩阵，描述如下：
+其中，$\tilde{\bI}$是一个大小为$n \times n$的矩阵，描述如下：
 \begin{equation*}
 \tilde{\bI} = \begin{pmatrix}
 1 & 0 & 0 & \cdots &\cdots & \cdots\\
@@ -865,7 +898,7 @@ C_{ij} = \begin{cases}
 0 & \cdots & \cdots & \cdots & \cdots & 0
 \end{pmatrix}
 \end{equation*}
-而$\bm 0$ 则是大小为$n * n$的零矩阵。于是$\B$可以写成归纳形式如下：
+而$\bm 0$ 则是大小为$n \times n$的零矩阵。于是$\B$可以写成归纳形式如下：
 \begin{equation}\label{eq:B}
 B_{ij} = \begin{cases}
 1 & i=j, \quad i \notin [kmn-n+1,kmn] \\
@@ -874,7 +907,7 @@ B_{ij} = \begin{cases}
 \end{cases}
 \end{equation}
 
-现在，矩阵$\B$和$\C$ 都已经得到了，我们需要对式子\eqref{eq:gradout2}作进一步展开，并得到可以计算的最终结果。
+现在，矩阵$\B$和$\C$ 都已经得到了，我们需要对式~\eqref{eq:gradout2}作进一步展开，并得到可以计算的最终结果。
 
 \subsection{展开结果的获得}
 考虑式子
@@ -894,11 +927,11 @@ B_{ij} = \begin{cases}
 \end{equation*}
 再展开的式子的外层，有
 \begin{equation*}
-(\B^T(\bh-\B\x))_j = \sum_{j=1}^{N}\B_{ij}T_i \\
+(\B^T(\bh-\B\x))_j = \sum_{j=1}^{N}B^T_{ij}T_i = \sum_{j=1}^{N}B_{ji}T_i
 \end{equation*}
 考虑到$\B$ 定义，即式子\eqref{eq:B}，上式可以进一步展开为
 \begin{equation*}
-\sum_{j=1}^{N}\B_{ij}T_i =  \begin{cases}
+\sum_{j=1}^{N}B_{ji}T_i =  \begin{cases}
 T_j -T_{j-n} & j\notin [kmn-n+1,kmn+n]\\
 T_j  & j \in [kmn+1,kmn+n] \\
 -T_{j-n} & j \in [kmn-n+1,kmn]
@@ -930,11 +963,11 @@ T_j  & j \in [kmn+1,kmn+n] \\
 \end{equation*}
 再展开的式子的外层，有
 \begin{equation*}
-(\C^T(\bv-\C\x))_j = \sum_{j=1}^{N}\C_{ij}Y_i \\
+(\C^T(\bv-\C\x))_j = \sum_{j=1}^{N}C^T_{ij}Y_i =\sum_{j=1}^{N}C_{ji}Y_i
 \end{equation*}
 考虑到$\C$ 定义，即式子\eqref{eq:C}，上式可以进一步展开为
 \begin{equation*}
-\sum_{j=1}^{N}\C_{ij}Y_i =  \begin{cases}
+\sum_{j=1}^{N}C_{ji}Y_i =  \begin{cases}
 Y_j -Y_{j-n} & j\in [mn,N-mn]\\
 Y_j  & j \in [1,mn] \\
 -Y_{j-mn} & j \in [N-mn,N]
@@ -975,36 +1008,36 @@ A_{+,j}=\sum_{i=1}^M{A_{i,j}} \\
 分别添加了一个相应的参数。而对于SART迭代项的收敛性，在论文\cite{jiang2003convergence}中对其做了详细的总结与证明。
 
 \subsection{SART算法的收敛性证明}
-\cite{jiang2003convergence}中中先证明了SART算法解的存在性。
-令$N(A)$是矩阵$\A$的零空间，则根据正交分解理论有:
+\cite{jiang2003convergence}中先证明了SART算法解的存在性。
+令$N(A)$是矩阵$A$的零空间，则根据正交分解理论有:
 \begin{equation*}
 \R^N=N(A)\oplus N(A)^\perp
 \end{equation*}
-其中$N(A)^\perp$表示$N(A)$的正交补子空间，令$R(\A^T)$表示矩阵$\A^T$的值域，
-所以，可以知道$N(A)^\perp=R(\A^T)$
+其中$N(A)^\perp$表示$N(A)$的正交补子空间，令$R(A^T)$表示矩阵$A^T$的值域，
+所以，可以知道$N(A)^\perp=R(A^T)$
 
 令
 \begin{equation*}
-L(x)=\sum_{i=1}^M\cfrac{1}{A_{i,+}}(b_i-\bar{b}_i(x))^2=\norm{\bb-\A\x}^2_W
+L(x)=\sum_{i=1}^M\cfrac{1}{A_{i,+}}(b_i-\bar{b}_i(x))^2=\norm{b-Ax}^2_W
 \end{equation*}
-其中$\norm{\bb-\A\x}^2_W = \W\norm{\bb-\A\x}^2$，它的梯度表示为：
+其中$\norm{b-Ax}^2_W = W\norm{b-Ax}^2$，它的梯度表示为：
 \begin{equation*}
-\nabla L(\x)=-2\A^T\W(\bb-\A\x)
+\nabla L(x)=-2A^TW(b-Ax)
 \end{equation*}
 而所有$L$的最小化点要满足
 \begin{equation}\label{eq:normaleq}
 \A^T\W\A\x=\A^T\W\bb
 \end{equation}
-因为$\inner{\A^T\W\A\x,\x}=\norm{\A\x}^2_W$，因此可以得到$N(A^TWA)=N(A)$。
-且因为$\A^T\W\bb\in R(\A^T) = N(A)^\perp$，\ref{eq:normaleq}存在解。
+因为$\inner{A^TWAx,x}=\norm{Ax}^2_W$，因此可以得到$N(A^TWA)=N(A)$。
+且因为$A^TWb\in R(A^T) = N(A)^\perp$，\ref{eq:normaleq}存在解。
 
 令S为\eqref{eq:normaleq}的解集。
-则由于$L(x)$是在$\x$上的凸函数，\eqref{eq:normaleq}
+则由于$L(x)$是在$x$上的凸函数，\eqref{eq:normaleq}
 的解也是$L$的最小化点，反之亦然。所以$S$也是$L$在$\R^N$上的最小化点集。
 
 接下\cite{jiang2003convergence}中证明了SART算法的收敛性问题。其中有：
 \begin{equation*}
-L(x\upp({x}))-L(x\upp{k})\le -\alpha\norm{x\upp{k+1}-x\upp{k}}^2_V
+L(x\upp{k+1})-L(x\upp{k})\le -\alpha\norm{x\upp{k+1}-x\upp{k}}^2_V
 \end{equation*}
 其中$\alpha = 2/\omega -1 > 0$。又有下述推论：
 \begin{enumerate}
@@ -1051,7 +1084,7 @@ z\upp{k+1}=z\upp{k}-\omega V^{-1}A^TWAz\upp{k}
 $\{r_k\}$也是收敛的，也就是说，$\lim_{k\rightarrow \infty}r_k$存在。
 最后，可以得到由SART所得到的序列$x\upp{k}$收敛于$P[x_0]+x^\ast$，只要
 $\omega\in (0,2)$。
- 
+
 \subsection{基于SART算法的收敛性说明}
 上述的证明已经说明了SART算法是收敛的。接下来考虑基于SART的优化算法的收敛性。
 式子\eqref{eq:gradout2}中，我们可以看到，除了SART算法项以外，还多出了两项属于
@@ -1173,8 +1206,10 @@ $0$，我们的梯度图采用一个简单的正方形作为模板。图\ref{fig
 \caption{发散的结果，y方向梯度}\label{fig:Iouty1}
 \end{figure}
 可以发现两个方向的梯度与原图的纹理非常类似，也是没有什么意义的。事实上，当步进参数选择过大时，就会导致迭代中
-的结果在最小值的周围来回震荡，或者直接发散开来，这与我们所得到的纹理图是想相类似的。
+的结果在最小值的周围来回震荡，或者直接发散开来，这与我们所得到的纹理图是相类似的。
 \FloatBarrier
+
+
 \subsection{迭代次数}
 如果我们选择一个合适的参数时，结果是收敛的。然而，如果迭代次数过少，会使得图像模板对原图的影响不平衡，
 在接下来实验中选取了参数$\lambda=\xi=0.1$，并迭代30次。
@@ -1246,7 +1281,7 @@ $0$，我们的梯度图采用一个简单的正方形作为模板。图\ref{fig
 
 
 
-\section{梯度模板信息的处理}\ref{sec:gradprocess}
+\section{梯度模板信息的处理}\label{sec:gradprocess}
 为了能够提高重建的质量（包括重建后的被测物体清晰度以及降低噪声），我们需要从
 超声数据中提取合理且有用的信息。正如前文所述，超声数据有如下特点：
 \begin{enumerate}
@@ -1382,11 +1417,13 @@ E(x,y)=\cfrac{1}{2}\sum_{i,j}(x_{ij}-y_{ij})^2
 到这可能是全变分降噪算法的一些不良影响}。因此，需要让梯度数据经过一系列处理，得到更合理
 的梯度数据。这种处理，也可以理解为我们从超声数据中提取有用信息的一部分。处理过程示意如下：
 \begin{equation*}
+\begin{split}
 \boxed{\text{降噪后噪声数据}}\xlongrightarrow{\text{提取梯度}}
-\boxed{\text{梯度数据}}\xlongrightarrow{\text{灰度开运算}}
+\boxed{\text{梯度数据}}\xlongrightarrow{\text{灰度开运算}}\\
 \boxed{\text{去斑块后数据}}\xlongrightarrow{\text{中值滤波}}
 \boxed{\text{噪声降低}}\xlongrightarrow{\text{灰度腐蚀膨胀}}
 \boxed{\text{最终结果}}
+\end{split}
 \end{equation*}
 \begin{enumerate}
 \item 灰度开运算
@@ -1425,7 +1462,7 @@ E(x,y)=\cfrac{1}{2}\sum_{i,j}(x_{ij}-y_{ij})^2
 在最后的实验效果中也证明了，这种处理方法的效果是很好的，提取出来的信息对重建的帮助也很大。
 
 
-\section{SART迭代项A矩阵的获得}\label{sec:obtainA}
+\section{SART迭代项投影矩阵的获得}\label{sec:obtainA}
 在章节\ref{sec:sartA}中，已经详细描述了在二维平面的投影矩阵获得方法。在本文所实验用的
 模型是一个三维模型，投影矩阵的获得需要作一些改动，当然，基本是类似的。
 
@@ -1456,12 +1493,12 @@ a_{ij}=\sum^{M_j}_{m=1}c_{ijm}\Delta s
 矛盾。从变步长梯度下降的角度看，这样的迭代方式改进也是合理的。
 
 在实验中，有$21$个不同角度的投影，且总的迭代轮数为$3$轮。因此，采用的迭代次数是投影数据迭代次数为$21*3$，而不含有
-投影数据的迭代次数为其$15$倍，也就是$21*3*15$。
+投影数据的迭代次数为其$15$倍，也就是$21 \times 3 \times 15$。
 
 经过测试，这样的迭代次数是合理的，能够让CT重建和梯度信息融合这两种过程都达到一个较好的结果。
 
 \section{代码实现}
-在最终试验测试中，主要采用Matlab和C程序共同运行的方式。其中,Matlab主要用来负责超声数据的
+在最终试验测试中，主要采用Matlab和C程序共同运行的方式。其中，Matlab主要用来负责超声数据的
 处理过程，包括配准，全变分降噪，提取梯度，以及梯度修正等等，并将之存储为可以被C
 程序所识别的数据形式。而C程序由于其高效的特性，被用于计算量最大的重建部分。重建部分也是
 代码实现最重要的部分，以下将作一些详细介绍。
@@ -1471,6 +1508,7 @@ a_{ij}=\sum^{M_j}_{m=1}c_{ijm}\Delta s
 \begin{table}[!h]
 \center
 \caption{模型参数}\label{tab:para}
+\zihao{5}
 \vspace{1pc}
 \begin{tabular}{r|l}
 \hline
@@ -1479,15 +1517,15 @@ a_{ij}=\sum^{M_j}_{m=1}c_{ijm}\Delta s
 探测面长     &   1152   \\
 \hline
 探测面宽    &     580 \\
-\hline  
+\hline
 重建区域长   &   1008 \\
-\hline 
+\hline
 重建区域宽  &  524 \\
-\hline   
+\hline
 重建区域底面高度  &   157  \\
 \hline
 重建区域顶面高度  &   372   \\
-\hline 
+\hline
 重建区域纵向层数  &  430   \\
 \hline
 投影组数       &  21 \\
@@ -1545,9 +1583,9 @@ a_{ij}=\sum^{M_j}_{m=1}c_{ijm}\Delta s
 
 在边缘的变化上，超声数据有着明显的优势。见图\ref{fig:us1}-\ref{fig:us4}
 \begin{figure}[!ht]
+\center
 \includegraphics[width=0.6\textwidth]{figure/result/us1.jpg}
 \caption{超声数据截面1}\label{fig:us1}
-\center
 \end{figure}
 \begin{figure}[!ht]
 \center
@@ -1617,6 +1655,15 @@ a_{ij}=\sum^{M_j}_{m=1}c_{ijm}\Delta s
 在最后，给出了原始CT重建、超声数据以及优化后CT重建结果在同一层下的对比。可以很清楚看到，
 基于SART的优化算法有效改进了CT重建的边缘模糊不清问题，同时又保留了CT重建的高分辨率以及
 低噪声的优势，从而看出，该算法是完全可行的。
+\backmatter
+
+
+\clearpage
+\makeatletter
+\@mainmattertrue
+\addcontentsline{toc}{chapter}{参考文献}
+\@mainmatterfalse
+\makeatother
 \bibliography{thesis}
 \chapter{致谢}
 \end{document}

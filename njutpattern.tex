@@ -51,18 +51,18 @@
 \def\NJUTunderline{\@ifnextchar[\NJUT@underline\CTEXunderline}
 
 %value
-\def\NJUT@value@title{论文题目}
-\def\NJUT@value@author{}
-\def\NJUT@value@advisor{}
-\def\NJUT@value@major{}
-\def\NJUT@value@department{}
-\def\NJUT@value@grade{}
-\def\NJUT@value@englishtitle{}
-\def\NJUT@value@englishauthor{}
-\def\NJUT@value@englishadvisor{}
-\def\NJUT@value@englishmajor{}
-\def\NJUT@value@englishdepartment{}
-\def\NJUT@value@englishgrade{}
+\def\NJUT@value@title{有限角度CT图像重建的优化}
+\def\NJUT@value@author{郭夏玮}
+\def\NJUT@value@advisor{袁杰\NJUTspace 副教授}
+\def\NJUT@value@major{电子}
+\def\NJUT@value@department{电子科学与工程}
+\def\NJUT@value@grade{2009}
+\def\NJUT@value@englishtitle{The optimization of limited angle Computerized Tomography Construction }
+\def\NJUT@value@englishauthor{Xiawei Guo}
+\def\NJUT@value@englishadvisor{Jie Yuan}
+\def\NJUT@value@englishmajor{Electronic Information Science and Technology}
+\def\NJUT@value@englishdepartment{Electronic Science and Engineering}
+\def\NJUT@value@englishgrade{Xiawei Guo}
 
 %abstract
 \def\NJUT@abs@label@bar{南京大学本科生毕业论文（设计）中文摘要}
@@ -88,12 +88,12 @@
 
         \noindent \NJUTunderline[400pt]{}
 
-        \noindent \NJUTunderline[85pt]{\NJUT@value@department}\NJUT@abs@label@department%
-        \NJUTunderline[71pt]{\NJUT@value@major}\NJUT@abs@label@major%
+        \noindent \NJUTunderline[100pt]{\NJUT@value@department}\NJUT@abs@label@department%
+        \NJUTunderline[45pt]{\NJUT@value@major}\NJUT@abs@label@major%
         \NJUTunderline[43pt]{\NJUT@value@grade}\NJUT@abs@label@author%
         \NJUTunderline[60pt]{\NJUT@value@author}
 
-        \noindent \NJUT@abs@label@advisor \NJUTunderline[252pt]{\NJUT@value@advisor}
+        \noindent \NJUT@abs@label@advisor \NJUTunderline[245pt]{\NJUT@value@advisor}
 
         \NJUT@abs@label@abstract
 
@@ -125,11 +125,15 @@
 %%
 
 \newcommand\NJUTtableofcontents{%
+\cleardoublepage
+\newpage
 \@mainmattertrue
 \addcontentsline{toc}{chapter}{目\NJUTspace 录}
 \@mainmatterfalse
 \tableofcontents
 }
+
+
 \addtocontents{toc}{\let\string\CTEX@spaceChar\relax}
 
 \titlecontents{chapter}[2em]
@@ -145,13 +149,13 @@
               {}
               {\titlerule*[0.5em]{$\cdot$}\contentspage}
               [\addvspace{0.25pc}]
-              
+
 \titlecontents{subsection}[6em]
               {\addvspace{0.1pc}\songti\zihao{-4}}
               {\thecontentslabel\enspace}
               {}
               {\titlerule*[0.5em]{$\cdot$}\contentspage}
-              [\addvspace{0.25pc}]              
+              [\addvspace{0.25pc}]
 
 \newcommand\Nchapter[1]{%
     \if@mainmatter%
