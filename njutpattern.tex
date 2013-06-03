@@ -6,12 +6,20 @@
 \usepackage{graphicx}
 \usepackage{geometry}
 \usepackage{enumitem}
-\usepackage{times}
 \usepackage{fancyvrb}
 \usepackage{titletoc}
+\usepackage{ulem}
 
 \makeatletter
 
+\hypersetup{CJKbookmarks,%
+    bookmarksnumbered,%
+        colorlinks,%
+        linkcolor=black,%
+        citecolor=black,%
+        plainpages=false,%
+        pdfstartview=FitH}
+        
 \geometry{top=3.5cm,bottom=3.5cm,left=3.2cm,right=3.2cm}
 \geometry{headheight=2.6cm,headsep=3mm,footskip=13mm}
 
@@ -21,21 +29,12 @@
  \thispagestyle{empty}%
  \hbox{}\newpage\if@twocolumn\hbox{}\newpage\fi\fi\fi}
 
-
-\hypersetup{CJKbookmarks,%
-    bookmarksnumbered,%
-        colorlinks,%
-        linkcolor=black,%
-        citecolor=black,%
-        plainpages=false,%
-        pdfstartview=FitH}
-
-
 \renewcommand{\floatpagefraction}{0.80}
 \newcommand\NJUTspace{\protect\CTEX@spaceChar\protect\CTEX@spaceChar}
 \def\CTEX@contentsname{\zihao{3}\songti\bfseries 目\NJUTspace 录}
 \def\CTEX@listfigurename{插\NJUTspace 图}
 \def\CTEX@listtablename{表\NJUTspace 格}
+
 %footnote
 \fancypagestyle{plain}{%
     \fancyhf{}
@@ -43,19 +42,35 @@
     \fancyfoot[C]{\small ~\thepage~}
     \renewcommand{\headrulewidth}{\if@mainmatter 0.7pt\else 0pt \fi}
 }
-\pagestyle{plain}
+
 
 %underline
 \def\NJUT@underline[#1]#2{%
     \CTEXunderline{\hbox to #1{\hfill#2\hfill}}}
 \def\NJUTunderline{\@ifnextchar[\NJUT@underline\CTEXunderline}
 
+
+
+\def\NJUT@label@thesis{本~~科~~毕~~业~~论~~文}
+\def\NJUT@label@title{题\CTEX@spaceChar\CTEX@spaceChar 目}
+\def\NJUT@label@dept{院\CTEX@spaceChar\CTEX@spaceChar 系}
+\def\NJUT@label@major{专\CTEX@spaceChar\CTEX@spaceChar 业}
+\def\NJUT@label@author{学生姓名}
+\def\NJUT@label@no{学\CTEX@spaceChar 号}
+\def\NJUT@label@grade{年\CTEX@spaceChar\CTEX@spaceChar 级}
+\def\NJUT@label@advisor{指导老师}
+\def\NJUT@label@advisorp{职\CTEX@spaceChar 称}
+\def\NJUT@label@date{论文提交日期}
+
 %value
 \def\NJUT@value@title{有限角度CT图像重建的优化}
 \def\NJUT@value@author{郭夏玮}
-\def\NJUT@value@advisor{袁杰\NJUTspace 副教授}
+\def\NJUT@value@advisor{袁杰}
+\def\NJUT@value@advisorp{副教授}
 \def\NJUT@value@major{电子}
 \def\NJUT@value@department{电子科学与工程}
+\def\NJUT@value@dept{电子科学与工程学院}
+\def\NJUT@value@no{091180045}
 \def\NJUT@value@grade{2009}
 \def\NJUT@value@englishtitle{The optimization of limited angle Computerized Tomography Construction }
 \def\NJUT@value@englishauthor{Xiawei Guo}
@@ -63,11 +78,46 @@
 \def\NJUT@value@englishmajor{Electronic Information Science and Technology}
 \def\NJUT@value@englishdepartment{Electronic Science and Engineering}
 \def\NJUT@value@englishgrade{Xiawei Guo}
+\def\NJUT@value@date{}
+
+\renewcommand\maketitle{%
+\thispagestyle{empty}
+    \pdfbookmark[0]{NJU Cover}{cover}
+    \begin{flushleft}
+    \vskip 10mm
+    \includegraphics[width=1.96cm]{figure/logo/njulogo}
+    \end{flushleft}
+
+    \begin{center}
+    \includegraphics[height=2.5cm]{figure/logo/njuname} \\
+    \vskip 15mm
+    {\bfseries\songti\zihao{1} \NJUT@label@thesis}\\
+    \vskip 5mm
+    \vskip \stretch{1}
+    \bfseries\mathbf\kaishu\zihao{3}
+    \def\tabcolsep{1pt}
+    \renewcommand\arraystretch{1.2}
+    \renewcommand\ULthickness{1pt}
+    \begin{tabular}{l}
+    \NJUT@label@dept  \NJUTunderline[15em]{\NJUT@value@dept}\\
+    \NJUT@label@major  \NJUTunderline[15em]{\NJUT@value@major}\\
+    \NJUT@label@title  \NJUTunderline[15em]{\NJUT@value@title}\\
+    \NJUT@label@grade  \NJUTunderline[6em]{\NJUT@value@grade}\NJUT@label@no\NJUTunderline[6em]{\NJUT@value@no}\\
+    \NJUT@label@author  \NJUTunderline[15em]{\NJUT@value@author}\\
+    \NJUT@label@advisor  \NJUTunderline[6em]{\NJUT@value@advisor}\NJUT@label@advisorp\NJUTunderline[6em]{\NJUT@value@advisorp}\\
+    \NJUT@label@date \NJUTunderline[13em]{\NJUT@value@date}
+    \end{tabular}\\
+    \vskip \stretch{1}
+    \end{center}
+}
+
+
+
 
 %abstract
 \def\NJUT@abs@label@bar{南京大学本科生毕业论文（设计）中文摘要}
 \def\NJUT@abs@label@englishbar{南京大学本科生毕业论文（设计）英文摘要}
-\def\NJUT@abs@label@title{毕业论文题目:}
+\def\NJUT@abs@label@title{毕业论文题目：}
 \def\NJUT@abs@label@major{专业}
 \def\NJUT@abs@label@department{院系}
 \def\NJUT@abs@label@author{级本科生姓名：}
@@ -77,6 +127,8 @@
 \def\NJUT@abs@label@englishabstract{ABSTRACT:}
 \def\NJUT@abs@label@englishkeywords{KEYWORDS:~}
 
+\pagestyle{plain}
+
 \newenvironment{abstract}{
     \pdfbookmark[0]{\NJUT@abs@label@abstract}{abstract}
     \begin{center}
@@ -84,16 +136,16 @@
     \end{center}
 
     {\kaishu\zihao{4}%
-        \noindent \NJUT@abs@label@title \NJUTunderline[315pt]{\NJUT@value@title}
+        \noindent \NJUT@abs@label@title \NJUTunderline[22em]{\NJUT@value@title}
 
-        \noindent \NJUTunderline[400pt]{}
+        \noindent \NJUTunderline[29em]{}
 
         \noindent \NJUTunderline[100pt]{\NJUT@value@department}\NJUT@abs@label@department%
         \NJUTunderline[45pt]{\NJUT@value@major}\NJUT@abs@label@major%
         \NJUTunderline[43pt]{\NJUT@value@grade}\NJUT@abs@label@author%
         \NJUTunderline[60pt]{\NJUT@value@author}
 
-        \noindent \NJUT@abs@label@advisor \NJUTunderline[245pt]{\NJUT@value@advisor}
+        \noindent \NJUT@abs@label@advisor \NJUTunderline[245pt]{\NJUT@value@advisor~~\NJUT@value@advisorp}
 
         \NJUT@abs@label@abstract
 
